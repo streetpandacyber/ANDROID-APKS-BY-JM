@@ -170,3 +170,9 @@
 - [x] Keep thumbnail generation and loading fully offline
 
 - [x] Improve Receipt Book history thumbnail readability with clearer receipt hierarchy, spacing, and fallback details
+
+- [ ] Add larger tappable Receipt Book detail preview modal from history thumbnails
+- [ ] Add local Receipt Book sorting and filtering by customer, date, and amount
+- [ ] Add dedicated POS calculator sub-tab with Send to Cart action
+
+- [x] Fix compact movement-date filter label clipping and adjacent action overlap
