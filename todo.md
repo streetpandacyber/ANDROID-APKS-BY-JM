@@ -126,3 +126,18 @@
 - [x] Add owner-only role and owner PIN authorization for sensitive actions
 - [x] Add edit-PIN configuration interface for cashiers
 - [x] Add deterministic tests for receipt template data, owner authorization, and audit records
+
+- [x] Remove “← Home” controls from Notebook, Calculator, and Receipt Book headers
+- [x] Add developer credit: JM Majiwa
+- [x] Add East African Time (EAT, UTC+3) formatting helper for app timestamps
+- [x] Add localized East African calendar/date display for shifts, sales, notes, receipts, and audits
+- [x] Verify compact secondary-module headers remain unclipped after removing Home controls
+
+- [x] Verify POS, NOTEBOOK, CALCULATOR, and RECEIPT BOOK bottom navigation destinations
+- [x] Verify POS Sell, Cart, Stock, Sales, Reports, and Audit sub-tabs
+- [x] Verify POS settings access and nested module transitions
+- [x] Verify removal of secondary Home controls and consistent compact headers
+- [x] Verify EAT timestamps, JM Majiwa credit, KSH formatting, and offline badge
+- [x] Verify local persistence, active shift restoration, backup/restore, and calculator history
+- [x] Verify local print/PDF/share actions, camera/gallery permissions, and owner authorization flows
+- [x] Verify responsive layout at compact portrait and desktop preview sizes
