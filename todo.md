@@ -149,3 +149,10 @@
 - [x] Add Stock quick search and status/category filters
 - [x] Add Sales quick search and status/cashier/date filters
 - [ ] Add deterministic tests for dashboard metrics and stock/sales filtering
+
+- [x] Add native date-picker controls for Sales date range filters
+- [x] Add native date-picker controls for Stock movement/date filtering
+- [x] Add receipt preview tax and discount draft fields
+- [x] Include tax and discount in receipt preview totals and exported output
+- [x] Add new line-item entry controls inside receipt preview
+- [x] Validate receipt total calculations after line, tax, and discount edits

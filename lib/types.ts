@@ -93,6 +93,9 @@ export type ReceiptEntry = {
   notes?: string;
   date: string;
   lines: ReceiptLine[];
+  subtotal?: number;
+  discount?: number;
+  tax?: number;
   total: number;
   source: "manual" | "camera";
   images: ReceiptImage[];
