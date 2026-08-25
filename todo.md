@@ -141,3 +141,11 @@
 - [x] Verify local persistence, active shift restoration, backup/restore, and calculator history
 - [x] Verify local print/PDF/share actions, camera/gallery permissions, and owner authorization flows
 - [x] Verify responsive layout at compact portrait and desktop preview sizes
+
+- [x] Add dedicated POS Dashboard sub-tab with sales, stock, shift, and action summaries
+- [x] Add dedicated POS Cashier sub-tab with active shift details and cashier management access
+- [x] Add receipt preview before print/PDF with editable receipt details and line items
+- [x] Add receipt preview confirmation before generating local print/PDF output
+- [x] Add Stock quick search and status/category filters
+- [x] Add Sales quick search and status/cashier/date filters
+- [ ] Add deterministic tests for dashboard metrics and stock/sales filtering
