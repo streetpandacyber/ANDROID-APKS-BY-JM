@@ -168,3 +168,5 @@
 - [x] Persist thumbnail references with receipt records and backup data
 - [x] Display receipt thumbnails in newest-first Receipt Book history with a safe fallback
 - [x] Keep thumbnail generation and loading fully offline
+
+- [x] Improve Receipt Book history thumbnail readability with clearer receipt hierarchy, spacing, and fallback details
