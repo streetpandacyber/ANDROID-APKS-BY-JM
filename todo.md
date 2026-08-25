@@ -101,3 +101,10 @@
 - [x] Move OFFLINE MODE badge into safe, non-overlapping header space
 - [x] Make POS header controls responsive on narrow Android widths
 - [x] Verify mobile header and category controls at compact viewport sizes
+
+- [x] Remove the top-left Home arrow from POS headers
+- [x] Apply the compact responsive header layout consistently across nested POS tabs
+- [x] Replace bottom-navigation text symbols with proper vector icon components
+- [x] Expand POS cart into a detailed checkout view with payment state feedback
+- [x] Add quick cash buttons, clear-cart confirmation, hold sale, and receipt action points
+- [x] Verify cart totals, balance/change, and checkout actions remain offline and mobile-friendly
