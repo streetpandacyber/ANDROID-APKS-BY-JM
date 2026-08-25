@@ -96,3 +96,8 @@
 - [x] Keep camera/gallery image references device-local and avoid network access
 - [x] Ensure backup export/import is local-only and clearly documented as on-device
 - [x] Review Android permissions and remove unnecessary internet-related requirements
+
+- [x] Fix compact portrait POS header overlap and clipped back control
+- [x] Move OFFLINE MODE badge into safe, non-overlapping header space
+- [x] Make POS header controls responsive on narrow Android widths
+- [x] Verify mobile header and category controls at compact viewport sizes
