@@ -1,0 +1,175 @@
+export type QuantityType = "unit" | "kg" | "liter";
+
+export type Product = {
+  id: string;
+  name: string;
+  sku: string;
+  category: string;
+  price: number;
+  quantityType: QuantityType;
+  overallStock: number;
+  soldStock: number;
+  taxRate: number;
+  lowStockThreshold: number;
+  imageUri?: string;
+};
+
+export type CartLine = {
+  productId: string;
+  quantity: number;
+  unitPrice: number;
+};
+
+export type Shift = {
+  id: string;
+  cashierName: string;
+  startedAt: string;
+  endedAt?: string;
+};
+
+export type StockAdjustment = {
+  id: string;
+  productId: string;
+  quantity: number;
+  note?: string;
+  createdAt: string;
+  createdBy: string;
+};
+
+export type SaleLine = {
+  productId: string;
+  name: string;
+  quantity: number;
+  quantityType: QuantityType;
+  unitPrice: number;
+  lineTotal: number;
+};
+
+export type Sale = {
+  id: string;
+  shiftId: string;
+  cashierName: string;
+  createdAt: string;
+  items: SaleLine[];
+  subtotal: number;
+  discount: number;
+  refund: number;
+  total: number;
+  amountGiven: number;
+  change: number;
+};
+
+export type NotebookEntry = {
+  id: string;
+  notebook: "pos" | "general";
+  title: string;
+  body: string;
+  createdAt: string;
+  pinned?: boolean;
+  folder?: string;
+  color?: string;
+};
+
+export type ReceiptEntry = {
+  id: string;
+  receiptNumber: string;
+  customerName: string;
+  merchantName: string;
+  date: string;
+  lines: { description: string; amount: number }[];
+  total: number;
+  source: "manual" | "camera";
+  imageUri?: string;
+};
+
+export type AppSettings = {
+  currency: string;
+  decimalPlaces: number;
+  theme: "dark" | "light";
+  appPin?: string;
+  editPin?: string;
+  pinEnabled: boolean;
+  editPinEnabled: boolean;
+};
+
+export type AppState = {
+  settings: AppSettings;
+  products: Product[];
+  shifts: Shift[];
+  stockAdjustments: StockAdjustment[];
+  sales: Sale[];
+  notebooks: NotebookEntry[];
+  receipts: ReceiptEntry[];
+  calculatorHistory: string[];
+  activeShiftId?: string;
+};
+
+export const initialState: AppState = {
+  settings: {
+    currency: "₦",
+    decimalPlaces: 2,
+    theme: "dark",
+    pinEnabled: true,
+    editPinEnabled: false,
+  },
+  products: [
+    {
+      id: "bread",
+      name: "Bread",
+      sku: "BRD-001",
+      category: "Bakery",
+      price: 60,
+      quantityType: "unit",
+      overallStock: 34,
+      soldStock: 0,
+      taxRate: 0,
+      lowStockThreshold: 8,
+    },
+    {
+      id: "milk",
+      name: "Fresh Milk",
+      sku: "MLK-002",
+      category: "Dairy",
+      price: 480,
+      quantityType: "liter",
+      overallStock: 12,
+      soldStock: 0,
+      taxRate: 0,
+      lowStockThreshold: 3,
+    },
+    {
+      id: "rice",
+      name: "Premium Rice",
+      sku: "RIC-003",
+      category: "Groceries",
+      price: 1450,
+      quantityType: "kg",
+      overallStock: 18,
+      soldStock: 0,
+      taxRate: 0,
+      lowStockThreshold: 4,
+    },
+    {
+      id: "soap",
+      name: "Laundry Soap",
+      sku: "SOP-004",
+      category: "Household",
+      price: 350,
+      quantityType: "unit",
+      overallStock: 5,
+      soldStock: 0,
+      taxRate: 0,
+      lowStockThreshold: 6,
+    },
+  ],
+  shifts: [],
+  stockAdjustments: [],
+  sales: [],
+  notebooks: [],
+  receipts: [],
+  calculatorHistory: [],
+};
+
+export function freshId(prefix: string) {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}

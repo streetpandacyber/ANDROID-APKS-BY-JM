@@ -1,0 +1,56 @@
+# Project TODO
+
+- [x] Confirm ShopMate Offline app identity and default currency assumption (₦)
+- [x] Write mobile interface design plan for portrait one-handed use
+- [x] Configure navy-orange theme tokens and dark/light mode
+- [x] Generate and install unique ShopMate Offline app icon and branding configuration
+- [x] Define local-only data model for settings, app lock, cashiers, shifts, products, stock adjustments, carts, sales, notebooks, receipts, and backup metadata
+- [x] Implement local persistence with no cloud dependency
+- [x] Implement app-open PIN/password lock
+- [ ] Implement optional protection PIN for editing/deleting sales, stock, and reports
+- [x] Implement Home module hub for POS, Notebook, Calculator, and Receipt Book
+- [ ] Implement POS cashier shift start with name, optional cashier PIN, and automatic timestamp
+- [x] Implement POS shift end logging and active shift badge
+- [x] Implement vertical product list with search by name/SKU/category
+- [x] Implement product category filter chips
+- [ ] Implement product creation and editing with image, SKU, price, category, quantity type, stock, tax/VAT, and low-stock threshold
+- [x] Implement POS cart with quantity controls and notepad-style handwritten presentation
+- [x] Implement live amount-given, total, discount, and balance/change calculation
+- [ ] Implement cart voids, refunds, and optional PIN confirmation
+- [ ] Implement dedicated POS calculator with Send to Cart
+- [x] Implement stock totals: overall received, sold, and balance
+- [x] Implement low-stock highlighting and manual restock history
+- [x] Keep Receipt Book entries independent from POS stock
+- [x] Implement local sales transaction storage tagged to cashier and shift
+- [x] Implement sales history and transaction detail views
+- [ ] Implement cashier/date-range report filtering
+- [x] Implement end-of-day summary and end-shift summary
+- [x] Implement local report export to file/PDF-compatible output
+- [x] Implement POS Notebook and General Notebook as independent notebooks
+- [x] Implement standalone Calculator module
+- [x] Implement independent Receipt Book manual receipt flow
+- [x] Implement camera-based receipt capture flow
+- [x] Implement settings for currency symbol and number format
+- [ ] Implement dark/light theme toggle with dark navy default
+- [x] Implement full local backup export to a single versioned file
+- [x] Implement validated local backup import/restore
+- [x] Add deterministic unit tests for totals, stock movements, PIN protection, and backup validation
+- [ ] Verify all user flows and remove dead-end actions
+- [ ] Save final checkpoint and provide the project version for Android build/publish via the UI
+
+- [x] Add POS Notebook with sale/customer/shift context links, cashier tags, and timestamps
+- [x] Add General Notebook fully independent from POS data and workflows
+- [x] Add shared notebook create, edit, delete, pin, search, and autosave behavior
+- [x] Add notebook folders/categories, color tags, and created/modified sorting
+- [x] Add lightweight rich-text controls for bold, italic, bullets, and checklists
+
+- [x] Add standalone Calculator standard mode with memory keys, percentage, history, and clipboard copy
+- [x] Add Calculator scientific mode with trigonometry, square root, exponents, and logarithm
+- [x] Persist calculator history locally and support clearing it
+- [x] Add independent Receipt Book manual entry and formatted digital receipt generation
+- [x] Add Receipt Book camera/gallery attachment flow with local image compression and optional crop/rotate
+- [x] Add searchable/filterable receipt history by date and customer
+- [ ] Add receipt view, edit, delete, local export/share, and future printer-ready action point
+- [x] Ensure calculator history and cashier records are included in the single backup file
+- [ ] Verify camera/gallery permissions require no internet permission
+- [x] Validate persistence across app restarts and offline APK operation
