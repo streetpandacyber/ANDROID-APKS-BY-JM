@@ -17,7 +17,7 @@
 - [x] Implement POS cart with quantity controls and notepad-style handwritten presentation
 - [x] Implement live amount-given, total, discount, and balance/change calculation
 - [x] Implement cart voids, refunds, and optional PIN confirmation
-- [ ] Implement dedicated POS calculator with Send to Cart
+- [x] Implement dedicated POS calculator with Send to Cart
 - [x] Implement stock totals: overall received, sold, and balance
 - [x] Implement low-stock highlighting and manual restock history
 - [x] Keep Receipt Book entries independent from POS stock
@@ -80,7 +80,7 @@
 - [x] Add notebook image/date/divider/table insertion actions
 - [x] Add custom folders, archive, trash with recovery metadata, and local note locking
 - [x] Add note word/character counts, created/edited timestamps, and quick-note floating action
-- [ ] Expand POS internal tabs to Dashboard, Cashier, Products, Sales, Stock, and Reports
+- [x] Expand POS internal tabs to Dashboard, Cashier, Products, Sales, Stock, and Reports
 - [ ] Add cashier shift name, shift label, lined-paper start form, recent items, end-shift confirmation, and shift summary
 - [ ] Add product cost/barcode/image/notes fields plus list sorting and stock filters
 - [x] Add POS cart internal calculator with payment states, quick cash, hold sale, print receipt, and clear confirmation
@@ -173,6 +173,9 @@
 
 - [ ] Add larger tappable Receipt Book detail preview modal from history thumbnails
 - [ ] Add local Receipt Book sorting and filtering by customer, date, and amount
-- [ ] Add dedicated POS calculator sub-tab with Send to Cart action
+- [x] Add dedicated POS calculator sub-tab with Send to Cart action
 
 - [x] Fix compact movement-date filter label clipping and adjacent action overlap
+
+- [x] Complete dedicated POS calculator UI and Send to Cart workflow
+- [x] Apply compact action-row layout to remaining crowded controls across the app
