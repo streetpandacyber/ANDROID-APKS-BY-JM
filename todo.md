@@ -86,3 +86,13 @@
 - [ ] Add POS cart internal calculator with payment states, quick cash, hold sale, print receipt, and clear confirmation
 - [ ] Add sale detail expansion, date/cashier filters, stock dashboard totals, progress bars, alerts, and movement history
 - [ ] Add daily, cashier, stock, product, and shift report types with generated metadata
+
+- [x] Audit and remove any runtime API/cloud dependency from the app flows
+- [x] Add explicit OFFLINE MODE status badge with positive green styling
+- [x] Add on-device storage notice to Settings
+- [x] Persist and restore the last active top-level section locally
+- [x] Persist and restore an active cashier shift across app restarts
+- [x] Ensure structured data, calculator history, and receipt/note records remain locally serializable
+- [x] Keep camera/gallery image references device-local and avoid network access
+- [x] Ensure backup export/import is local-only and clearly documented as on-device
+- [x] Review Android permissions and remove unnecessary internet-related requirements
