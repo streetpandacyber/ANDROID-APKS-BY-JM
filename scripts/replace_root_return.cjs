@@ -1,0 +1,9 @@
+const fs = require('fs');
+const sourcePath = 'app/(tabs)/index.tsx';
+const source = fs.readFileSync(sourcePath, 'utf8');
+const start = source.indexOf('  return <ScreenContainer edges={["top", "left", "right"]}>');
+const endMarker = '\n}';
+const end = source.indexOf(endMarker, start);
+if (start < 0 || end < 0) throw new Error('root return block not found');
+const replacement = `  return <ScreenContainer edges={["top", "left", "right"]}><View style={styles.app}><View style={styles.offlineBadge}><View style={styles.offlineDot} /><Text style={styles.offlineText}>OFFLINE MODE</Text></View>{content}{authAction && <View style={styles.modalBackdrop}><View style={styles.authModal}><Text style={styles.eyebrow}>{authAction.type === "voided" ? "VOID AUTHORIZATION" : "REFUND AUTHORIZATION"}</Text><Text style={styles.sectionTitle}>Confirm this sale action</Text><Text style={styles.muted}>Enter the app PIN, edit PIN, or active cashier PIN. This update is stored locally.</Text><Field value={authPin} onChangeText={setAuthPin} placeholder="Authorization PIN" keyboardType="number-pad" secureTextEntry /><View style={styles.row}><Button label="Cancel" onPress={() => setAuthAction(undefined)} secondary /><Button label="Authorize" onPress={applySaleAction} /></View></View></View>}<View style={styles.bottomNav}>{([["pos", "pos", "POS"], ["notes", "notes", "NOTEBOOK"], ["calculator", "calculator", "CALCULATOR"], ["receipt", "receipt", "RECEIPT BOOK"]] as [Mode, NavIconKind, string][]).map(([key, icon, label]) => <Pressable key={key} onPress={() => setMode(key)} style={({ pressed }) => [styles.navItem, mode === key && styles.navActive, pressed && styles.pressed]}><NavIcon kind={icon} color={mode === key ? C.white : C.muted} /><Text style={[styles.navLabel, mode === key && { color: C.white }]}>{label}</Text></Pressable>)}</View></View></ScreenContainer>;`;
+fs.writeFileSync(sourcePath, source.slice(0, start) + replacement + source.slice(end));

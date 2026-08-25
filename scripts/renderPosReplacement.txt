@@ -1,0 +1,162 @@
+  const renderPos = () => (
+    <View style={styles.flex}>
+      <View style={styles.posHeader}>
+        <View style={styles.posTitleWrap}>
+          <Text style={styles.eyebrow}>POINT OF SALE</Text>
+          <Text style={styles.title}>Sell faster.</Text>
+        </View>
+        {activeShift ? (
+          <View style={styles.shiftPill}>
+            <View style={styles.dot} />
+            <Text style={styles.shiftPillText}>{activeShift.cashierName}</Text>
+          </View>
+        ) : (
+          <Button
+            label="Start shift"
+            small
+            onPress={() => {
+              const name = Platform.OS === "web" ? window.prompt("Cashier name") || "" : cashier;
+              const record = state.cashiers.find(c => c.name.toLowerCase() === name.trim().toLowerCase());
+              const enteredPin = Platform.OS === "web" ? window.prompt(record?.pin ? "Cashier PIN" : "Shift name (optional)") || "" : cashierPin;
+              if (!name) return;
+              if (record?.pin && enteredPin !== record.pin) return Alert.alert("PIN required", "The cashier PIN does not match this local record.");
+              const shift = { id: freshId("shift"), cashierName: name.trim(), shiftName: record?.name || undefined, startedAt: new Date().toISOString() };
+              setCashier(name.trim());
+              setState(s => ({ ...s, shifts: [shift, ...s.shifts], activeShiftId: shift.id }));
+            }}
+          />
+        )}
+      </View>
+      <View style={styles.segment}>
+        {([["sell", "Sell"], ["cart", `Cart ${cart.length ? `(${cart.length})` : ""}`], ["stock", "Stock"], ["sales", "Sales"], ["reports", "Reports"]] as [PosTab, string][]).map(([key, label]) => (
+          <Pressable key={key} onPress={() => setPosTab(key)} style={[styles.segmentItem, posTab === key && styles.segmentActive]}>
+            <Text style={[styles.segmentText, posTab === key && styles.segmentTextActive]}>{label}</Text>
+          </Pressable>
+        ))}
+      </View>
+      {posTab === "sell" && (
+        <View style={styles.flex}>
+          <ScrollView contentContainerStyle={styles.content}>
+            <Card style={styles.productEditor}>
+              <View style={styles.rowBetween}>
+                <Text style={styles.sectionTitle}>{editingProductId ? "Edit product" : "Add product"}</Text>
+                {editingProductId && <Button label="Cancel" onPress={resetProductForm} secondary small />}
+              </View>
+              <View style={styles.row}>
+                <Field value={productName} onChangeText={setProductName} placeholder="Product name" />
+                <Field value={productSku} onChangeText={setProductSku} placeholder="SKU / barcode" />
+              </View>
+              <View style={styles.row}>
+                <Field value={productCategory} onChangeText={setProductCategory} placeholder="Category" />
+                <Field value={productPrice} onChangeText={setProductPrice} placeholder="Selling price" keyboardType="decimal-pad" />
+              </View>
+              <View style={styles.row}>
+                <Field value={productCost} onChangeText={setProductCost} placeholder="Cost price" keyboardType="decimal-pad" />
+                <Field value={productStock} onChangeText={setProductStock} placeholder="Starting stock" keyboardType="decimal-pad" />
+              </View>
+              <View style={styles.row}>
+                <Field value={productTax} onChangeText={setProductTax} placeholder="Tax %" keyboardType="decimal-pad" />
+                <Field value={productThreshold} onChangeText={setProductThreshold} placeholder="Low-stock alert" keyboardType="decimal-pad" />
+              </View>
+              <Field value={productBarcode} onChangeText={setProductBarcode} placeholder="Barcode (optional)" />
+              <Field value={productNotes} onChangeText={setProductNotes} placeholder="Product notes (optional)" multiline />
+              <Text style={styles.muted}>Quantity type</Text>
+              <View style={styles.row}>
+                {([["unit", "Unit"], ["kg", "Kilogram"], ["liter", "Liter"]] as [typeof productQuantityType, string][]).map(([key, label]) => (
+                  <Pressable key={key} onPress={() => setProductQuantityType(key)} style={[styles.chip, productQuantityType === key && styles.chipActive]}>
+                    <Text style={[styles.chipText, productQuantityType === key && styles.chipTextActive]}>{label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Button label={editingProductId ? "Save product changes" : "Add product"} onPress={saveProduct} />
+            </Card>
+          </ScrollView>
+          <View style={styles.searchWrap}>
+            <Text style={styles.searchIcon}>⌕</Text>
+            <TextInput value={query} onChangeText={setQuery} placeholder="Search products, SKU, category" placeholderTextColor={C.muted} style={styles.search} />
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+            {categories.map(c => <Pressable key={c} onPress={() => setCategory(c)} style={[styles.chip, category === c && styles.chipActive]}><Text style={[styles.chipText, category === c && styles.chipTextActive]}>{c}</Text></Pressable>)}
+          </ScrollView>
+          <FlatList
+            data={filteredProducts}
+            keyExtractor={p => p.id}
+            contentContainerStyle={styles.list}
+            renderItem={({ item }) => {
+              const balance = item.overallStock - item.soldStock;
+              const low = balance <= item.lowStockThreshold;
+              return (
+                <Pressable onPress={() => addToCart(item)} onLongPress={() => editProduct(item)} delayLongPress={350} style={({ pressed }) => [styles.productRow, pressed && styles.pressed]}>
+                  <View style={styles.thumb}><Text style={styles.thumbText}>{item.name.slice(0, 1)}</Text></View>
+                  <View style={{ flex: 1 }}><Text style={styles.productName}>{item.name}</Text><Text style={styles.muted}>{item.sku} • {item.category} • {item.quantityType}</Text></View>
+                  <View style={{ alignItems: "flex-end" }}><Text style={styles.price}>{money(item.price, state.settings.currency)}</Text><Text style={[styles.stockText, low && { color: C.red }]}>{low ? `LOW • ${balance} left` : `${balance} ${item.quantityType} left`}</Text></View>
+                </Pressable>
+              );
+            }}
+            ListEmptyComponent={<View style={styles.empty}><Text style={styles.emptyTitle}>No products found</Text><Text style={styles.muted}>Try another search or category. Long-press a product row to edit it.</Text></View>}
+          />
+        </View>
+      )}
+      {posTab === "cart" && (
+        <ScrollView contentContainerStyle={styles.content}>
+          <Card style={styles.notepad}>
+            <Text style={styles.notepadTitle}>TODAY’S SALE</Text>
+            {cartLines.length ? cartLines.map(x => (
+              <View key={x.product.id} style={styles.noteLine}>
+                <Text style={styles.hand}>{x.quantity} {x.product.name} = {money(x.quantity * x.unitPrice, state.settings.currency)}</Text>
+                <View style={styles.qty}><IconButton label="−" onPress={() => changeQty(x.product.id, -1)} /><Text style={styles.qtyText}>{x.quantity}</Text><IconButton label="＋" onPress={() => changeQty(x.product.id, 1)} /></View>
+              </View>
+            )) : <Text style={styles.hand}>Add products from Sell to begin…</Text>}
+            <View style={styles.rule} />
+            <View style={styles.checkoutRow}><Text style={styles.hand}>SUBTOTAL</Text><Text style={styles.hand}>{money(subtotal, state.settings.currency)}</Text></View>
+            <Field value={discount} onChangeText={setDiscount} placeholder="Discount amount" keyboardType="decimal-pad" />
+            <View style={styles.checkoutRow}><Text style={styles.hand}>TOTAL</Text><Text style={[styles.hand, { fontSize: 24 }]}>{money(total, state.settings.currency)}</Text></View>
+            <Field value={amountGiven} onChangeText={setAmountGiven} placeholder="Amount given" keyboardType="decimal-pad" />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickCash}>{[50, 100, 200, 500, 1000].map(value => <Pressable key={value} onPress={() => setAmountGiven(String(value))} style={styles.quickCashButton}><Text style={styles.quickCashText}>{money(value, state.settings.currency)}</Text></Pressable>)}</ScrollView>
+            <View style={styles.checkoutRow}><Text style={styles.hand}>GIVEN</Text><Text style={styles.hand}>{money(given, state.settings.currency)}</Text></View>
+            <Text style={[styles.checkoutStatus, { color: given === 0 ? C.muted : given < total ? C.red : given === total ? C.orange : C.green }]}>{paymentState}</Text>
+            <Text style={[styles.hand, { color: given < total ? C.red : C.green, fontSize: 25 }]}>{given < total ? `Balance due = ${money(total - given, state.settings.currency)}` : `Change = ${money(change, state.settings.currency)}`}</Text>
+          </Card>
+          <View style={styles.row}><Button label="Clear cart" onPress={clearCart} secondary /><Button label="Hold sale" onPress={holdSale} secondary /></View>
+          <View style={styles.row}><Button label="Print receipt" onPress={printCurrentReceipt} secondary /><Button label="Complete sale" onPress={completeSale} /></View>
+          {heldCart.length > 0 && <Button label="Restore held sale" onPress={restoreHeldSale} secondary />}
+        </ScrollView>
+      )}
+      {posTab === "stock" && (
+        <ScrollView contentContainerStyle={styles.content}>
+          {state.products.map(p => {
+            const balance = p.overallStock - p.soldStock;
+            const low = balance <= p.lowStockThreshold;
+            return <Card key={p.id} style={styles.stockCard}><View style={{ flex: 1 }}><Text style={styles.productName}>{p.name}</Text><Text style={styles.muted}>Overall {p.overallStock} • Sold {p.soldStock} • Balance {balance}</Text></View><Text style={[styles.stockBadge, low && { backgroundColor: `${C.red}22`, color: C.red }]}>{low ? "LOW" : "OK"}</Text><Button label="+ Restock" small secondary onPress={() => { const qty = Platform.OS === "web" ? Number(window.prompt("Quantity to restock") || 0) : 1; if (qty > 0) setState(s => ({ ...s, products: s.products.map(x => x.id === p.id ? { ...x, overallStock: x.overallStock + qty } : x), stockAdjustments: [{ id: freshId("adjust"), productId: p.id, quantity: qty, createdAt: new Date().toISOString(), createdBy: activeShift?.cashierName || "Owner" }, ...s.stockAdjustments] })); }} /> </Card>;
+          })}
+        </ScrollView>
+      )}
+      {posTab === "sales" && (
+        <ScrollView contentContainerStyle={styles.content}>
+          <Card>
+            <Text style={styles.sectionTitle}>Sales filters</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>{["All", ...cashierNames].map(name => <Pressable key={name} onPress={() => setSalesCashierFilter(name)} style={[styles.chip, salesCashierFilter === name && styles.chipActive]}><Text style={[styles.chipText, salesCashierFilter === name && styles.chipTextActive]}>{name}</Text></Pressable>)}</ScrollView>
+            <View style={styles.row}><Field value={salesFrom} onChangeText={setSalesFrom} placeholder="From YYYY-MM-DD" /><Field value={salesTo} onChangeText={setSalesTo} placeholder="To YYYY-MM-DD" /></View>
+            <Text style={styles.muted}>{filteredSales.length} matching sale{filteredSales.length === 1 ? "" : "s"}</Text>
+          </Card>
+          {filteredSales.map(item => (
+            <Card key={item.id}>
+              <View style={styles.rowBetween}><View style={{ flex: 1 }}><Text style={styles.productName}>{item.items.map(i => i.name).join(", ")}</Text><Text style={styles.muted}>{item.cashierName} • {new Date(item.createdAt).toLocaleString()}</Text></View><Text style={styles.price}>{money(item.total, state.settings.currency)}</Text></View>
+              <Text style={styles.muted}>Given {money(item.amountGiven, state.settings.currency)} • Change {money(item.change, state.settings.currency)} • <Text style={{ color: item.status === "voided" ? C.red : item.status === "refunded" ? C.amber : C.green }}>{(item.status || "completed").toUpperCase()}</Text></Text>
+              <View style={styles.row}><Button label="Print" onPress={() => printSale(item)} secondary small /><Button label="Share / export" onPress={() => exportSale(item)} secondary small /></View>
+              {(!item.status || item.status === "completed") && <View style={styles.row}><Button label="Void sale" onPress={() => requestSaleAction(item.id, "voided")} secondary small /><Button label="Refund sale" onPress={() => requestSaleAction(item.id, "refunded")} secondary small /></View>}
+            </Card>
+          ))}
+          {!filteredSales.length && <View style={styles.empty}><Text style={styles.emptyTitle}>No matching sales</Text><Text style={styles.muted}>Adjust the cashier or date filters.</Text></View>}
+        </ScrollView>
+      )}
+      {posTab === "reports" && (
+        <ScrollView contentContainerStyle={styles.content}>
+          <Card style={styles.reportHero}><Text style={styles.eyebrow}>FILTERED REPORT</Text><Text style={styles.reportTotal}>{money(filteredSales.filter(s => s.status !== "voided").reduce((a, s) => a + s.total, 0), state.settings.currency)}</Text><Text style={styles.muted}>Net sales for selected filters</Text></Card>
+          <View style={styles.statsRow}><Card style={styles.stat}><Text style={styles.statValue}>{filteredSales.length}</Text><Text style={styles.muted}>Transactions</Text></Card><Card style={styles.stat}><Text style={styles.statValue}>{filteredSales.reduce((a, s) => a + s.items.reduce((b, i) => b + i.quantity, 0), 0)}</Text><Text style={styles.muted}>Items sold</Text></Card></View>
+          <Card><Text style={styles.sectionTitle}>Report filters</Text><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>{["All", ...cashierNames].map(name => <Pressable key={name} onPress={() => setSalesCashierFilter(name)} style={[styles.chip, salesCashierFilter === name && styles.chipActive]}><Text style={[styles.chipText, salesCashierFilter === name && styles.chipTextActive]}>{name}</Text></Pressable>)}</ScrollView><View style={styles.row}><Field value={salesFrom} onChangeText={setSalesFrom} placeholder="From YYYY-MM-DD" /><Field value={salesTo} onChangeText={setSalesTo} placeholder="To YYYY-MM-DD" /></View></Card>
+          <Button label="Export filtered report" onPress={() => exportFile("shopmate-sales-report.csv", ["Date,Cashier,Total,Amount Given,Change,Status", ...filteredSales.map(s => `${s.createdAt},${s.cashierName},${s.total},${s.amountGiven},${s.change},${s.status || "completed"}`)].join("\n"), "text/csv")} />
+        </ScrollView>
+      )}
+    </View>
+  );

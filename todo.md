@@ -108,3 +108,12 @@
 - [x] Expand POS cart into a detailed checkout view with payment state feedback
 - [x] Add quick cash buttons, clear-cart confirmation, hold sale, and receipt action points
 - [x] Verify cart totals, balance/change, and checkout actions remain offline and mobile-friendly
+
+- [x] Add product create/edit form with name, SKU, category, price, cost, quantity type, stock, low-stock threshold, image, and notes
+- [x] Add cashier management list with per-cashier PIN setup and update
+- [x] Require cashier PIN authorization for refund and void actions
+- [x] Track refund/void metadata without changing unrelated receipt-book inventory
+- [x] Add cashier and date-range filters to sales reports
+- [x] Add local print-ready output for completed sales and receipts
+- [x] Add local share/export actions for completed sales and receipts
+- [x] Add deterministic tests for authorization, report filters, and product totals

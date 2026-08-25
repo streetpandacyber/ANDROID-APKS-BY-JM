@@ -1,4 +1,4 @@
-import type { AppState, CartLine, Product } from "./types";
+import type { AppState, CartLine, Product, Sale } from "./types";
 
 export function calculateSale(cart: CartLine[], products: Product[], discount = 0, amountGiven = 0) {
   const subtotal = cart.reduce((sum, line) => sum + line.quantity * line.unitPrice, 0);
@@ -13,6 +13,10 @@ export function balanceStock(product: Product) {
 export function isLowStock(product: Product) {
   return balanceStock(product) <= product.lowStockThreshold;
 }
+
+export function filterSales(sales: Sale[], cashier = "All", from = "", to = "") { return sales.filter(sale => (cashier === "All" || sale.cashierName === cashier) && (!from || sale.createdAt.slice(0, 10) >= from) && (!to || sale.createdAt.slice(0, 10) <= to)); }
+
+export function canAuthorizeAction(inputPin: string, appPin?: string, editPin?: string, cashierPin?: string) { return Boolean(inputPin) && [appPin, editPin, cashierPin].some(pin => Boolean(pin) && pin === inputPin); }
 
 export function isValidBackup(value: unknown): value is { version: number; state: AppState } {
   if (!value || typeof value !== "object") return false;

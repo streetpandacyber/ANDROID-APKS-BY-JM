@@ -11,6 +11,9 @@ export type Product = {
   soldStock: number;
   taxRate: number;
   lowStockThreshold: number;
+  cost?: number;
+  barcode?: string;
+  notes?: string;
   imageUri?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -18,7 +21,9 @@ export type Product = {
 
 export type CartLine = { productId: string; quantity: number; unitPrice: number };
 
-export type Shift = { id: string; cashierName: string; startedAt: string; endedAt?: string };
+export type Cashier = { id: string; name: string; pin?: string };
+
+export type Shift = { id: string; cashierName: string; shiftName?: string; startedAt: string; endedAt?: string };
 
 export type StockAdjustment = {
   id: string;
@@ -50,6 +55,9 @@ export type Sale = {
   total: number;
   amountGiven: number;
   change: number;
+  status?: "completed" | "voided" | "refunded";
+  authorizedBy?: string;
+  actionAt?: string;
 };
 
 export type NotebookEntry = {
@@ -100,6 +108,7 @@ export type AppSettings = {
 export type AppState = {
   settings: AppSettings;
   products: Product[];
+  cashiers: Cashier[];
   shifts: Shift[];
   stockAdjustments: StockAdjustment[];
   sales: Sale[];
@@ -117,7 +126,7 @@ export const initialState: AppState = {
     { id: "rice", name: "Premium Rice", sku: "RIC-003", category: "Groceries", price: 1450, quantityType: "kg", overallStock: 18, soldStock: 0, taxRate: 0, lowStockThreshold: 4 },
     { id: "soap", name: "Laundry Soap", sku: "SOP-004", category: "Household", price: 350, quantityType: "unit", overallStock: 5, soldStock: 0, taxRate: 0, lowStockThreshold: 6 },
   ],
-  shifts: [], stockAdjustments: [], sales: [], notebooks: [], receipts: [], calculatorHistory: [],
+  cashiers: [], shifts: [], stockAdjustments: [], sales: [], notebooks: [], receipts: [], calculatorHistory: [],
 };
 
 export function freshId(prefix: string) { return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`; }
