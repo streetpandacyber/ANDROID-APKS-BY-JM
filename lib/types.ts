@@ -12,20 +12,13 @@ export type Product = {
   taxRate: number;
   lowStockThreshold: number;
   imageUri?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
-export type CartLine = {
-  productId: string;
-  quantity: number;
-  unitPrice: number;
-};
+export type CartLine = { productId: string; quantity: number; unitPrice: number };
 
-export type Shift = {
-  id: string;
-  cashierName: string;
-  startedAt: string;
-  endedAt?: string;
-};
+export type Shift = { id: string; cashierName: string; startedAt: string; endedAt?: string };
 
 export type StockAdjustment = {
   id: string;
@@ -65,21 +58,30 @@ export type NotebookEntry = {
   title: string;
   body: string;
   createdAt: string;
+  updatedAt?: string;
+  shiftId?: string;
+  saleId?: string;
   pinned?: boolean;
   folder?: string;
   color?: string;
 };
 
+export type ReceiptImage = { id: string; receiptId: string; localPath: string; createdAt: string };
+
+export type ReceiptLine = { description: string; quantity: number; unitPrice: number; amount: number };
+
 export type ReceiptEntry = {
   id: string;
   receiptNumber: string;
+  title?: string;
   customerName: string;
   merchantName: string;
+  notes?: string;
   date: string;
-  lines: { description: string; amount: number }[];
+  lines: ReceiptLine[];
   total: number;
   source: "manual" | "camera";
-  imageUri?: string;
+  images: ReceiptImage[];
 };
 
 export type AppSettings = {
@@ -105,71 +107,14 @@ export type AppState = {
 };
 
 export const initialState: AppState = {
-  settings: {
-    currency: "₦",
-    decimalPlaces: 2,
-    theme: "dark",
-    pinEnabled: true,
-    editPinEnabled: false,
-  },
+  settings: { currency: "₦", decimalPlaces: 2, theme: "dark", pinEnabled: true, editPinEnabled: false },
   products: [
-    {
-      id: "bread",
-      name: "Bread",
-      sku: "BRD-001",
-      category: "Bakery",
-      price: 60,
-      quantityType: "unit",
-      overallStock: 34,
-      soldStock: 0,
-      taxRate: 0,
-      lowStockThreshold: 8,
-    },
-    {
-      id: "milk",
-      name: "Fresh Milk",
-      sku: "MLK-002",
-      category: "Dairy",
-      price: 480,
-      quantityType: "liter",
-      overallStock: 12,
-      soldStock: 0,
-      taxRate: 0,
-      lowStockThreshold: 3,
-    },
-    {
-      id: "rice",
-      name: "Premium Rice",
-      sku: "RIC-003",
-      category: "Groceries",
-      price: 1450,
-      quantityType: "kg",
-      overallStock: 18,
-      soldStock: 0,
-      taxRate: 0,
-      lowStockThreshold: 4,
-    },
-    {
-      id: "soap",
-      name: "Laundry Soap",
-      sku: "SOP-004",
-      category: "Household",
-      price: 350,
-      quantityType: "unit",
-      overallStock: 5,
-      soldStock: 0,
-      taxRate: 0,
-      lowStockThreshold: 6,
-    },
+    { id: "bread", name: "Bread", sku: "BRD-001", category: "Bakery", price: 60, quantityType: "unit", overallStock: 34, soldStock: 0, taxRate: 0, lowStockThreshold: 8 },
+    { id: "milk", name: "Fresh Milk", sku: "MLK-002", category: "Dairy", price: 480, quantityType: "liter", overallStock: 12, soldStock: 0, taxRate: 0, lowStockThreshold: 3 },
+    { id: "rice", name: "Premium Rice", sku: "RIC-003", category: "Groceries", price: 1450, quantityType: "kg", overallStock: 18, soldStock: 0, taxRate: 0, lowStockThreshold: 4 },
+    { id: "soap", name: "Laundry Soap", sku: "SOP-004", category: "Household", price: 350, quantityType: "unit", overallStock: 5, soldStock: 0, taxRate: 0, lowStockThreshold: 6 },
   ],
-  shifts: [],
-  stockAdjustments: [],
-  sales: [],
-  notebooks: [],
-  receipts: [],
-  calculatorHistory: [],
+  shifts: [], stockAdjustments: [], sales: [], notebooks: [], receipts: [], calculatorHistory: [],
 };
 
-export function freshId(prefix: string) {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
+export function freshId(prefix: string) { return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`; }

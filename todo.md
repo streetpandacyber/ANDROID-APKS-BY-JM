@@ -54,3 +54,10 @@
 - [x] Ensure calculator history and cashier records are included in the single backup file
 - [ ] Verify camera/gallery permissions require no internet permission
 - [x] Validate persistence across app restarts and offline APK operation
+
+- [x] Refine top-level Calculator as a basic-only standalone flow separate from both POS calculators
+- [x] Add receipt title, receipt notes, automatic date/time, and multiple manual line items
+- [x] Add receipt detail view with items, totals, and attached-image gallery
+- [x] Add receipt image records with local URI, receipt link, and created timestamp
+- [x] Align local domain model with CashierShift, Product, StockMovement, Sale, SaleItem, Note, Receipt, ReceiptItem, and ReceiptImage entities
+- [x] Derive stock balances and reports from local records rather than remote data
