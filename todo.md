@@ -9,21 +9,21 @@
 - [x] Implement app-open PIN/password lock
 - [ ] Implement optional protection PIN for editing/deleting sales, stock, and reports
 - [x] Implement Home module hub for POS, Notebook, Calculator, and Receipt Book
-- [ ] Implement POS cashier shift start with name, optional cashier PIN, and automatic timestamp
+- [x] Implement POS cashier shift start with name, optional cashier PIN, and automatic timestamp
 - [x] Implement POS shift end logging and active shift badge
 - [x] Implement vertical product list with search by name/SKU/category
 - [x] Implement product category filter chips
-- [ ] Implement product creation and editing with image, SKU, price, category, quantity type, stock, tax/VAT, and low-stock threshold
+- [x] Implement product creation and editing with image, SKU, price, category, quantity type, stock, tax/VAT, and low-stock threshold
 - [x] Implement POS cart with quantity controls and notepad-style handwritten presentation
 - [x] Implement live amount-given, total, discount, and balance/change calculation
-- [ ] Implement cart voids, refunds, and optional PIN confirmation
+- [x] Implement cart voids, refunds, and optional PIN confirmation
 - [ ] Implement dedicated POS calculator with Send to Cart
 - [x] Implement stock totals: overall received, sold, and balance
 - [x] Implement low-stock highlighting and manual restock history
 - [x] Keep Receipt Book entries independent from POS stock
 - [x] Implement local sales transaction storage tagged to cashier and shift
 - [x] Implement sales history and transaction detail views
-- [ ] Implement cashier/date-range report filtering
+- [x] Implement cashier/date-range report filtering
 - [x] Implement end-of-day summary and end-shift summary
 - [x] Implement local report export to file/PDF-compatible output
 - [x] Implement POS Notebook and General Notebook as independent notebooks
@@ -31,7 +31,7 @@
 - [x] Implement independent Receipt Book manual receipt flow
 - [x] Implement camera-based receipt capture flow
 - [x] Implement settings for currency symbol and number format
-- [ ] Implement dark/light theme toggle with dark navy default
+- [x] Implement dark/light theme toggle with dark navy default
 - [x] Implement full local backup export to a single versioned file
 - [x] Implement validated local backup import/restore
 - [x] Add deterministic unit tests for totals, stock movements, PIN protection, and backup validation
@@ -52,7 +52,7 @@
 - [x] Add searchable/filterable receipt history by date and customer
 - [ ] Add receipt view, edit, delete, local export/share, and future printer-ready action point
 - [x] Ensure calculator history and cashier records are included in the single backup file
-- [ ] Verify camera/gallery permissions require no internet permission
+- [x] Verify camera/gallery permissions require no internet permission
 - [x] Validate persistence across app restarts and offline APK operation
 
 - [x] Refine top-level Calculator as a basic-only standalone flow separate from both POS calculators
@@ -83,7 +83,7 @@
 - [ ] Expand POS internal tabs to Dashboard, Cashier, Products, Sales, Stock, and Reports
 - [ ] Add cashier shift name, shift label, lined-paper start form, recent items, end-shift confirmation, and shift summary
 - [ ] Add product cost/barcode/image/notes fields plus list sorting and stock filters
-- [ ] Add POS cart internal calculator with payment states, quick cash, hold sale, print receipt, and clear confirmation
+- [x] Add POS cart internal calculator with payment states, quick cash, hold sale, print receipt, and clear confirmation
 - [ ] Add sale detail expansion, date/cashier filters, stock dashboard totals, progress bars, alerts, and movement history
 - [ ] Add daily, cashier, stock, product, and shift report types with generated metadata
 
@@ -117,3 +117,12 @@
 - [x] Add local print-ready output for completed sales and receipts
 - [x] Add local share/export actions for completed sales and receipts
 - [x] Add deterministic tests for authorization, report filters, and product totals
+
+- [x] Add business name, address, phone, tax ID, logo URI, footer, and receipt-template settings
+- [x] Add customizable PDF receipt template controls and thermal printer width presets
+- [x] Add local receipt PDF generation with selected template and business branding
+- [x] Add stock movement history screen with adjustment, sale, refund, and void entries
+- [x] Add refund and void audit history with cashier, authorizer, timestamp, and reason
+- [x] Add owner-only role and owner PIN authorization for sensitive actions
+- [x] Add edit-PIN configuration interface for cashiers
+- [x] Add deterministic tests for receipt template data, owner authorization, and audit records
