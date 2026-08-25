@@ -61,3 +61,28 @@
 - [x] Add receipt image records with local URI, receipt link, and created timestamp
 - [x] Align local domain model with CashierShift, Product, StockMovement, Sale, SaleItem, Note, Receipt, ReceiptItem, and ReceiptImage entities
 - [x] Derive stock balances and reports from local records rather than remote data
+
+- [x] Change default currency display from ₦ to KSH
+- [x] Add visible back navigation from module views to the Home module hub
+- [x] Add nested POS back navigation from POS subviews to the POS Sell screen
+- [x] Ensure back controls are usable on portrait Android screens
+
+- [x] Redesign primary navigation to exactly four sections: POS, NOTEBOOK, CALCULATOR, and RECEIPT BOOK
+- [x] Remove Home, More, and other items from the primary bottom navigation
+- [x] Add module icons, descriptions, and color indicators for the four sections
+- [x] Add active orange navigation pills and muted navy inactive states
+- [x] Add smooth module transition animation without introducing cross-module feature mixing
+
+- [x] Build the complete independent NOTEBOOK workspace with POS Notes and My Notebook labels
+- [x] Add notebook card previews, pinned section, category tags, search, and four sort modes
+- [x] Expand note editor toolbar with formatting, headings, lists, checkboxes, dividers, alignment, and text styling controls
+- [x] Add lined, grid, plain, and dotted note-page styles
+- [x] Add notebook image/date/divider/table insertion actions
+- [x] Add custom folders, archive, trash with recovery metadata, and local note locking
+- [x] Add note word/character counts, created/edited timestamps, and quick-note floating action
+- [ ] Expand POS internal tabs to Dashboard, Cashier, Products, Sales, Stock, and Reports
+- [ ] Add cashier shift name, shift label, lined-paper start form, recent items, end-shift confirmation, and shift summary
+- [ ] Add product cost/barcode/image/notes fields plus list sorting and stock filters
+- [ ] Add POS cart internal calculator with payment states, quick cash, hold sale, print receipt, and clear confirmation
+- [ ] Add sale detail expansion, date/cashier filters, stock dashboard totals, progress bars, alerts, and movement history
+- [ ] Add daily, cashier, stock, product, and shift report types with generated metadata

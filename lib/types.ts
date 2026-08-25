@@ -64,6 +64,9 @@ export type NotebookEntry = {
   pinned?: boolean;
   folder?: string;
   color?: string;
+  pageStyle?: "lined" | "grid" | "plain" | "dotted";
+  archived?: boolean;
+  trashedAt?: string;
 };
 
 export type ReceiptImage = { id: string; receiptId: string; localPath: string; createdAt: string };
@@ -107,7 +110,7 @@ export type AppState = {
 };
 
 export const initialState: AppState = {
-  settings: { currency: "₦", decimalPlaces: 2, theme: "dark", pinEnabled: true, editPinEnabled: false },
+  settings: { currency: "KSH", decimalPlaces: 2, theme: "dark", pinEnabled: true, editPinEnabled: false },
   products: [
     { id: "bread", name: "Bread", sku: "BRD-001", category: "Bakery", price: 60, quantityType: "unit", overallStock: 34, soldStock: 0, taxRate: 0, lowStockThreshold: 8 },
     { id: "milk", name: "Fresh Milk", sku: "MLK-002", category: "Dairy", price: 480, quantityType: "liter", overallStock: 12, soldStock: 0, taxRate: 0, lowStockThreshold: 3 },
