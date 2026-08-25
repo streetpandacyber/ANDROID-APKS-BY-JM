@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, calculateReceiptTotals, calculateSale, canAuthorizeAction, filterSales, isLowStock, isValidBackup } from "../lib/domain";
+import { balanceStock, calculateDashboardMetrics, calculateReceiptTotals, calculateSale, canAuthorizeAction, filterSales, filterStock, isLowStock, isValidBackup } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 
 const product: Product = { ...initialState.products[0], overallStock: 10, soldStock: 3, lowStockThreshold: 7 };
@@ -22,13 +22,31 @@ describe("offline business rules", () => {
     expect(isLowStock(product)).toBe(true);
   });
 
-  it("filters sales by cashier and date range", () => {
+  it("calculates today dashboard metrics while excluding voided sales", () => {
+    const sales = [
+      { id: "a", shiftId: "s", cashierName: "Amina", createdAt: "2026-08-20T10:00:00Z", items: [{ productId: "bread", name: "Bread", quantity: 2, quantityType: "unit" as const, unitPrice: 60, lineTotal: 120 }], subtotal: 120, discount: 0, refund: 0, total: 120, amountGiven: 200, change: 80 },
+      { id: "b", shiftId: "s", cashierName: "Brian", createdAt: "2026-08-20T11:00:00Z", items: [{ productId: "milk", name: "Milk", quantity: 1, quantityType: "liter" as const, unitPrice: 80, lineTotal: 80 }], subtotal: 80, discount: 0, refund: 0, total: 80, amountGiven: 80, change: 0, status: "voided" as const },
+      { id: "c", shiftId: "s", cashierName: "Amina", createdAt: "2026-08-19T11:00:00Z", items: [{ productId: "rice", name: "Rice", quantity: 5, quantityType: "kg" as const, unitPrice: 10, lineTotal: 50 }], subtotal: 50, discount: 0, refund: 10, total: 50, amountGiven: 50, change: 0 },
+    ];
+    expect(calculateDashboardMetrics(sales, [product], "2026-08-20")).toEqual({ netSales: 120, itemsSold: 2, transactions: 1, lowStockCount: 1 });
+  });
+
+  it("filters sales by cashier and date range with a supplied date key", () => {
     const sales = [
       { id: "a", shiftId: "s", cashierName: "Amina", createdAt: "2026-08-20T10:00:00Z", items: [], subtotal: 100, discount: 0, refund: 0, total: 100, amountGiven: 100, change: 0 },
       { id: "b", shiftId: "s", cashierName: "Brian", createdAt: "2026-08-22T10:00:00Z", items: [], subtotal: 200, discount: 0, refund: 0, total: 200, amountGiven: 200, change: 0 },
     ];
     expect(filterSales(sales, "Amina", "2026-08-20", "2026-08-20")).toHaveLength(1);
     expect(filterSales(sales, "All", "2026-08-21", "2026-08-23")[0].cashierName).toBe("Brian");
+    expect(filterSales(sales, "All", "2026-08-20", "2026-08-20", () => "2026-08-21")).toHaveLength(0);
+  });
+
+  it("filters stock by status, movement date, and search text", () => {
+    const healthy = { ...initialState.products[1], id: "milk", name: "Fresh Milk", sku: "MLK-002", category: "Dairy", overallStock: 12, soldStock: 2, lowStockThreshold: 3 };
+    const movements = [{ id: "m1", productId: "bread", quantity: 4, type: "restock" as const, createdAt: "2026-08-20T08:00:00Z", createdBy: "Amina" }, { id: "m2", productId: "milk", quantity: 2, type: "restock" as const, createdAt: "2026-08-21T08:00:00Z", createdBy: "Amina" }];
+    expect(filterStock([product, healthy], movements, "low")).toEqual([product]);
+    expect(filterStock([product, healthy], movements, "all", "2026-08-21", "milk")).toEqual([healthy]);
+    expect(filterStock([product, healthy], movements, "inStock", "", "dairy")).toEqual([healthy]);
   });
 
   it("accepts app, edit, or cashier PINs for protected actions", () => {

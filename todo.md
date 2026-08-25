@@ -35,7 +35,7 @@
 - [x] Implement full local backup export to a single versioned file
 - [x] Implement validated local backup import/restore
 - [x] Add deterministic unit tests for totals, stock movements, PIN protection, and backup validation
-- [ ] Verify all user flows and remove dead-end actions
+- [x] Verify all user flows and remove dead-end actions
 - [ ] Save final checkpoint and provide the project version for Android build/publish via the UI
 
 - [x] Add POS Notebook with sale/customer/shift context links, cashier tags, and timestamps
@@ -50,7 +50,7 @@
 - [x] Add independent Receipt Book manual entry and formatted digital receipt generation
 - [x] Add Receipt Book camera/gallery attachment flow with local image compression and optional crop/rotate
 - [x] Add searchable/filterable receipt history by date and customer
-- [ ] Add receipt view, edit, delete, local export/share, and future printer-ready action point
+- [x] Add receipt view, edit, delete, local export/share, and future printer-ready action point
 - [x] Ensure calculator history and cashier records are included in the single backup file
 - [x] Verify camera/gallery permissions require no internet permission
 - [x] Validate persistence across app restarts and offline APK operation
@@ -148,7 +148,7 @@
 - [x] Add receipt preview confirmation before generating local print/PDF output
 - [x] Add Stock quick search and status/category filters
 - [x] Add Sales quick search and status/cashier/date filters
-- [ ] Add deterministic tests for dashboard metrics and stock/sales filtering
+- [x] Add deterministic tests for dashboard metrics and stock/sales filtering
 
 - [x] Add native date-picker controls for Sales date range filters
 - [x] Add native date-picker controls for Stock movement/date filtering
@@ -163,3 +163,8 @@
 - [x] Add native EAT date-picker controls to Audit filters
 - [x] Add native EAT date-picker controls to Reports filters
 - [x] Validate print-preview fidelity, percentage calculations, and all POS date filters
+
+- [x] Generate a compact local receipt-preview thumbnail for saved Receipt Book records
+- [x] Persist thumbnail references with receipt records and backup data
+- [x] Display receipt thumbnails in newest-first Receipt Book history with a safe fallback
+- [x] Keep thumbnail generation and loading fully offline

@@ -1,4 +1,7 @@
-import type { AppState, CartLine, Product, Sale } from "./types";
+import type { AppState, CartLine, Product, Sale, StockAdjustment } from "./types";
+
+export type StockFilter = "all" | "low" | "inStock";
+export type DashboardMetrics = { netSales: number; itemsSold: number; transactions: number; lowStockCount: number };
 
 export function calculateSale(cart: CartLine[], products: Product[], discount = 0, amountGiven = 0) {
   const subtotal = cart.reduce((sum, line) => sum + line.quantity * line.unitPrice, 0);
@@ -23,7 +26,11 @@ export function isLowStock(product: Product) {
   return balanceStock(product) <= product.lowStockThreshold;
 }
 
-export function filterSales(sales: Sale[], cashier = "All", from = "", to = "") { return sales.filter(sale => (cashier === "All" || sale.cashierName === cashier) && (!from || sale.createdAt.slice(0, 10) >= from) && (!to || sale.createdAt.slice(0, 10) <= to)); }
+export function filterSales(sales: Sale[], cashier = "All", from = "", to = "", dateKey: (value: string) => string = value => value.slice(0, 10)) { return sales.filter(sale => (cashier === "All" || sale.cashierName === cashier) && (!from || dateKey(sale.createdAt) >= from) && (!to || dateKey(sale.createdAt) <= to)); }
+
+export function filterStock(products: Product[], adjustments: StockAdjustment[], status: StockFilter = "all", date = "", search = "", dateKey: (value: string) => string = value => value.slice(0, 10)) { const query = search.trim().toLowerCase(); return products.filter(product => { const balance = balanceStock(product); const statusMatch = status === "all" || (status === "low" ? balance <= product.lowStockThreshold : balance > product.lowStockThreshold); const dateMatch = !date || adjustments.some(move => move.productId === product.id && dateKey(move.createdAt) === date); const searchMatch = !query || `${product.name} ${product.sku} ${product.category}`.toLowerCase().includes(query); return statusMatch && dateMatch && searchMatch; }); }
+
+export function calculateDashboardMetrics(sales: Sale[], products: Product[], day = "", dateKey: (value: string) => string = value => value.slice(0, 10)): DashboardMetrics { const todaySales = day ? sales.filter(sale => dateKey(sale.createdAt) === day) : sales; const activeSales = todaySales.filter(sale => sale.status !== "voided"); return { netSales: activeSales.reduce((sum, sale) => sum + sale.total - (sale.refund || 0), 0), itemsSold: activeSales.reduce((sum, sale) => sum + sale.items.reduce((items, item) => items + item.quantity, 0), 0), transactions: activeSales.length, lowStockCount: products.filter(isLowStock).length }; }
 
 export function canAuthorizeAction(inputPin: string, appPin?: string, editPin?: string, cashierPin?: string) { return Boolean(inputPin) && [appPin, editPin, cashierPin].some(pin => Boolean(pin) && pin === inputPin); }
 

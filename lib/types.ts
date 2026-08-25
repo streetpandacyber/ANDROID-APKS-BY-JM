@@ -84,6 +84,8 @@ export type ReceiptImage = { id: string; receiptId: string; localPath: string; c
 
 export type ReceiptLine = { description: string; quantity: number; unitPrice: number; amount: number };
 
+export type ReceiptThumbnail = { title: string; total: number; currency: string; date: string; itemCount: number; imageUri?: string };
+
 export type ReceiptEntry = {
   id: string;
   receiptNumber: string;
@@ -101,6 +103,7 @@ export type ReceiptEntry = {
   total: number;
   source: "manual" | "camera";
   images: ReceiptImage[];
+  thumbnail?: ReceiptThumbnail;
 };
 
 export type AppSettings = {
