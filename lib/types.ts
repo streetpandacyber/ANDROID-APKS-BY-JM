@@ -95,7 +95,9 @@ export type ReceiptEntry = {
   lines: ReceiptLine[];
   subtotal?: number;
   discount?: number;
+  discountMode?: "amount" | "percent";
   tax?: number;
+  taxMode?: "amount" | "percent";
   total: number;
   source: "manual" | "camera";
   images: ReceiptImage[];

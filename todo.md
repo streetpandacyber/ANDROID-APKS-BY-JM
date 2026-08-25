@@ -156,3 +156,10 @@
 - [x] Include tax and discount in receipt preview totals and exported output
 - [x] Add new line-item entry controls inside receipt preview
 - [x] Validate receipt total calculations after line, tax, and discount edits
+
+- [x] Add exact print-layout receipt preview modal before print/PDF confirmation
+- [x] Add fixed amount versus percentage mode selectors for receipt discount and tax
+- [x] Recalculate receipt totals correctly for both tax and discount modes
+- [x] Add native EAT date-picker controls to Audit filters
+- [x] Add native EAT date-picker controls to Reports filters
+- [x] Validate print-preview fidelity, percentage calculations, and all POS date filters

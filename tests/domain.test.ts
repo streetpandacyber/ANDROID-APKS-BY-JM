@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, calculateSale, canAuthorizeAction, filterSales, isLowStock, isValidBackup } from "../lib/domain";
+import { balanceStock, calculateReceiptTotals, calculateSale, canAuthorizeAction, filterSales, isLowStock, isValidBackup } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 
 const product: Product = { ...initialState.products[0], overallStock: 10, soldStock: 3, lowStockThreshold: 7 };
@@ -7,6 +7,14 @@ const product: Product = { ...initialState.products[0], overallStock: 10, soldSt
 describe("offline business rules", () => {
   it("calculates subtotal, discount, and change", () => {
     expect(calculateSale([{ productId: "bread", quantity: 2, unitPrice: 60 }], [product], 10, 200)).toEqual({ subtotal: 120, total: 110, amountGiven: 200, change: 90 });
+  });
+
+  it("calculates percentage discount before percentage tax", () => {
+    expect(calculateReceiptTotals(1000, 10, "percent", 16, "percent")).toEqual({ subtotal: 1000, discount: 100, tax: 144, total: 1044 });
+  });
+
+  it("calculates fixed receipt discount and tax", () => {
+    expect(calculateReceiptTotals(1000, 100, "amount", 50, "amount")).toEqual({ subtotal: 1000, discount: 100, tax: 50, total: 950 });
   });
 
   it("tracks stock balance and low-stock status", () => {

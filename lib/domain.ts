@@ -6,6 +6,15 @@ export function calculateSale(cart: CartLine[], products: Product[], discount = 
   return { subtotal, total, amountGiven, change: Math.max(0, amountGiven - total) };
 }
 
+export function calculateReceiptTotals(subtotal: number, discountValue = 0, discountMode: "amount" | "percent" = "amount", taxValue = 0, taxMode: "amount" | "percent" = "amount") {
+  const rawDiscount = Math.max(0, discountValue || 0);
+  const discount = discountMode === "percent" ? subtotal * Math.min(rawDiscount, 100) / 100 : rawDiscount;
+  const afterDiscount = Math.max(0, subtotal - discount);
+  const rawTax = Math.max(0, taxValue || 0);
+  const tax = taxMode === "percent" ? afterDiscount * Math.min(rawTax, 100) / 100 : rawTax;
+  return { subtotal, discount, tax, total: Math.max(0, afterDiscount + tax) };
+}
+
 export function balanceStock(product: Product) {
   return Math.max(0, product.overallStock - product.soldStock);
 }
