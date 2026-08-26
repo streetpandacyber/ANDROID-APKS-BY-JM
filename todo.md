@@ -171,8 +171,8 @@
 
 - [x] Improve Receipt Book history thumbnail readability with clearer receipt hierarchy, spacing, and fallback details
 
-- [ ] Add larger tappable Receipt Book detail preview modal from history thumbnails
-- [ ] Add local Receipt Book sorting and filtering by customer, date, and amount
+- [x] Add larger tappable Receipt Book detail preview modal from history thumbnails
+- [x] Add local Receipt Book sorting and filtering by customer, date, and amount
 - [x] Add dedicated POS calculator sub-tab with Send to Cart action
 
 - [x] Fix compact movement-date filter label clipping and adjacent action overlap
@@ -182,3 +182,7 @@
 
 - [x] Persist POS calculator history and allow users to reuse previous calculations
 - [x] Add visual success toast and subtle animation after POS calculator Send to Cart
+
+- [x] Allow editing mathematical expressions when reusing POS-calculator history entries
+- [x] Show EAT timestamps and delete individual POS-calculator history entries
+- [x] Complete Receipt Book detail preview modal and add customer/date filter controls
