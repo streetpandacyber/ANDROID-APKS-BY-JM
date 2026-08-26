@@ -86,8 +86,6 @@ export type ReceiptLine = { description: string; quantity: number; unitPrice: nu
 
 export type ReceiptThumbnail = { title: string; total: number; currency: string; date: string; itemCount: number; imageUri?: string };
 
-export type PosCalculatorEntry = { id: string; expression: string; result: number; createdAt: string };
-
 export type ReceiptEntry = {
   id: string;
   receiptNumber: string;
@@ -126,6 +124,7 @@ export type AppSettings = {
   receiptTemplate?: "classic" | "minimal" | "thermal";
   thermalWidth?: "58mm" | "80mm";
   developerName?: string;
+  autoBalanceParentheses?: boolean;
 };
 
 export type AppState = {
@@ -138,20 +137,19 @@ export type AppState = {
   notebooks: NotebookEntry[];
   receipts: ReceiptEntry[];
   calculatorHistory: string[];
-  posCalculatorHistory: PosCalculatorEntry[];
   auditLog: AuditEntry[];
   activeShiftId?: string;
 };
 
 export const initialState: AppState = {
-  settings: { currency: "KSH", decimalPlaces: 2, theme: "dark", pinEnabled: true, editPinEnabled: false, receiptTemplate: "classic", thermalWidth: "80mm", businessName: "ShopMate Offline", receiptFooter: "Thank you for shopping with us.", developerName: "JM Majiwa" },
+  settings: { currency: "KSH", decimalPlaces: 2, theme: "dark", pinEnabled: true, editPinEnabled: false, receiptTemplate: "classic", thermalWidth: "80mm", businessName: "ShopMate Offline", receiptFooter: "Thank you for shopping with us.", developerName: "JM Majiwa", autoBalanceParentheses: false },
   products: [
     { id: "bread", name: "Bread", sku: "BRD-001", category: "Bakery", price: 60, quantityType: "unit", overallStock: 34, soldStock: 0, taxRate: 0, lowStockThreshold: 8 },
     { id: "milk", name: "Fresh Milk", sku: "MLK-002", category: "Dairy", price: 480, quantityType: "liter", overallStock: 12, soldStock: 0, taxRate: 0, lowStockThreshold: 3 },
     { id: "rice", name: "Premium Rice", sku: "RIC-003", category: "Groceries", price: 1450, quantityType: "kg", overallStock: 18, soldStock: 0, taxRate: 0, lowStockThreshold: 4 },
     { id: "soap", name: "Laundry Soap", sku: "SOP-004", category: "Household", price: 350, quantityType: "unit", overallStock: 5, soldStock: 0, taxRate: 0, lowStockThreshold: 6 },
   ],
-  cashiers: [], shifts: [], stockAdjustments: [], sales: [], notebooks: [], receipts: [], calculatorHistory: [], posCalculatorHistory: [], auditLog: [],
+  cashiers: [], shifts: [], stockAdjustments: [], sales: [], notebooks: [], receipts: [], calculatorHistory: [], auditLog: [],
 };
 
 export function freshId(prefix: string) { return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`; }

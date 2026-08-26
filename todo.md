@@ -171,8 +171,8 @@
 
 - [x] Improve Receipt Book history thumbnail readability with clearer receipt hierarchy, spacing, and fallback details
 
-- [x] Add larger tappable Receipt Book detail preview modal from history thumbnails
-- [x] Add local Receipt Book sorting and filtering by customer, date, and amount
+- [ ] Add larger tappable Receipt Book detail preview modal from history thumbnails
+- [ ] Add local Receipt Book sorting and filtering by customer, date, and amount
 - [x] Add dedicated POS calculator sub-tab with Send to Cart action
 
 - [x] Fix compact movement-date filter label clipping and adjacent action overlap
@@ -180,19 +180,6 @@
 - [x] Complete dedicated POS calculator UI and Send to Cart workflow
 - [x] Apply compact action-row layout to remaining crowded controls across the app
 
-- [x] Persist POS calculator history and allow users to reuse previous calculations
-- [x] Add visual success toast and subtle animation after POS calculator Send to Cart
-
-- [x] Allow editing mathematical expressions when reusing POS-calculator history entries
-- [x] Show EAT timestamps and delete individual POS-calculator history entries
-- [x] Complete Receipt Book detail preview modal and add customer/date filter controls
-
-- [x] Add visual invalid-expression feedback before saving POS calculator history
-- [x] Add direct Export to PDF action on Receipt Book history thumbnails
-- [x] Add Reset All control for Receipt Book filters
-
-- [x] Add real-time POS calculator expression validation hints while typing
-- [x] Add quick receipt PDF-layout preview before export
-- [x] Add toast confirmation after Receipt Book Reset All filters
-
-- [x] Add unmatched-parenthesis hints and contextual keypad highlighting in the POS calculator
+- [x] Add persisted optional POS-calculator auto-balance-parentheses setting
+- [x] Add divide-by-zero and other invalid-state hints with visual keypad feedback
+- [x] Auto-close unmatched parentheses on equals when auto-balance is enabled
