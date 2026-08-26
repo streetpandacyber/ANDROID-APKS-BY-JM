@@ -213,3 +213,7 @@
 - [x] Add protected production keystore signing configuration for GitHub release builds
 - [x] Add an open-source license to the repository
 - [x] Add contribution guidelines to the repository
+
+- [x] Add About-section debug/release build indicator
+- [ ] Add GitHub release update notification without violating the offline requirement
+- [x] Add dashboard feedback form with an offline-safe submission path or approved online submission

@@ -125,6 +125,15 @@ export type AppSettings = {
   thermalWidth?: "58mm" | "80mm";
   developerName?: string;
   autoBalanceParentheses?: boolean;
+  latestKnownVersion?: string;
+  latestKnownReleaseDate?: string;
+};
+
+export type FeedbackEntry = {
+  id: string;
+  subject: string;
+  message: string;
+  createdAt: string;
 };
 
 export type AppState = {
@@ -138,18 +147,19 @@ export type AppState = {
   receipts: ReceiptEntry[];
   calculatorHistory: string[];
   auditLog: AuditEntry[];
+  feedback: FeedbackEntry[];
   activeShiftId?: string;
 };
 
 export const initialState: AppState = {
-  settings: { currency: "KSH", decimalPlaces: 2, theme: "dark", pinEnabled: true, editPinEnabled: false, receiptTemplate: "classic", thermalWidth: "80mm", businessName: "ShopMate Offline", receiptFooter: "Thank you for shopping with us.", developerName: "JM Majiwa", autoBalanceParentheses: false },
+  settings: { currency: "KSH", decimalPlaces: 2, theme: "dark", pinEnabled: true, editPinEnabled: false, receiptTemplate: "classic", thermalWidth: "80mm", businessName: "ShopMate Offline", receiptFooter: "Thank you for shopping with us.", developerName: "JM Majiwa", autoBalanceParentheses: false, latestKnownVersion: "1.0.0", latestKnownReleaseDate: "26 August 2026" },
   products: [
     { id: "bread", name: "Bread", sku: "BRD-001", category: "Bakery", price: 60, quantityType: "unit", overallStock: 34, soldStock: 0, taxRate: 0, lowStockThreshold: 8 },
     { id: "milk", name: "Fresh Milk", sku: "MLK-002", category: "Dairy", price: 480, quantityType: "liter", overallStock: 12, soldStock: 0, taxRate: 0, lowStockThreshold: 3 },
     { id: "rice", name: "Premium Rice", sku: "RIC-003", category: "Groceries", price: 1450, quantityType: "kg", overallStock: 18, soldStock: 0, taxRate: 0, lowStockThreshold: 4 },
     { id: "soap", name: "Laundry Soap", sku: "SOP-004", category: "Household", price: 350, quantityType: "unit", overallStock: 5, soldStock: 0, taxRate: 0, lowStockThreshold: 6 },
   ],
-  cashiers: [], shifts: [], stockAdjustments: [], sales: [], notebooks: [], receipts: [], calculatorHistory: [], auditLog: [],
+  cashiers: [],   shifts: [], stockAdjustments: [], sales: [], notebooks: [], receipts: [], calculatorHistory: [], auditLog: [], feedback: [],
 };
 
 export function freshId(prefix: string) { return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`; }
