@@ -190,3 +190,7 @@
 - [x] Add visual invalid-expression feedback before saving POS calculator history
 - [x] Add direct Export to PDF action on Receipt Book history thumbnails
 - [x] Add Reset All control for Receipt Book filters
+
+- [x] Add real-time POS calculator expression validation hints while typing
+- [x] Add quick receipt PDF-layout preview before export
+- [x] Add toast confirmation after Receipt Book Reset All filters
