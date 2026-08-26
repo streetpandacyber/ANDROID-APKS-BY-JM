@@ -206,6 +206,6 @@
 - [x] Analyze selected GitHub repository state, remote, and recent history
 - [x] Push the current validated ShopMate Offline project changes to GitHub
 
-- [ ] Add comprehensive README with Android build and offline-use instructions to GitHub
-- [ ] Configure and verify GitHub Actions testing and APK build workflow
-- [ ] Create and publish the initial tagged GitHub release with APK artifact when available
+- [x] Add comprehensive README with Android build and offline-use instructions to GitHub
+- [x] Configure and verify GitHub Actions testing and APK build workflow
+- [x] Create and publish the initial tagged GitHub release with APK artifact when available
