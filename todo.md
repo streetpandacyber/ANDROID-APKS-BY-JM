@@ -36,7 +36,7 @@
 - [x] Implement validated local backup import/restore
 - [x] Add deterministic unit tests for totals, stock movements, PIN protection, and backup validation
 - [x] Verify all user flows and remove dead-end actions
-- [ ] Save final checkpoint and provide the project version for Android build/publish via the UI
+- [x] Save final checkpoint and provide the project version for Android build/publish via the UI
 
 - [x] Add POS Notebook with sale/customer/shift context links, cashier tags, and timestamps
 - [x] Add General Notebook fully independent from POS data and workflows
@@ -189,3 +189,9 @@
 - [x] Add physical keyboard input support for the POS calculator
 
 - [x] Fix narrow POS Sell layout: remove empty gap, prevent clipped sub-tabs, and eliminate nested scrollbars
+
+- [x] Move POS cashier shift start into a dedicated screen
+- [x] Add a subtle horizontal-scroll shadow indicator to POS sub-tabs
+- [x] Keep POS Sell search and category controls sticky above the product list
+
+- [x] Move the remaining cashier name/PIN/start-shift controls completely out of the POS Sell header
