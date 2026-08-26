@@ -226,3 +226,16 @@
 - [ ] Provide a direct debug APK download link after the GitHub Actions artifact is available
 - [x] Connect the project to Expo build services using the supplied credential
 - [x] Verify Expo project configuration and APK build readiness
+- [x] Audit remaining security, feature, display, accessibility, and release-readiness improvements
+
+- [x] Harden PIN storage, retry throttling, background relock, and owner authorization
+- [x] Harden backup schema validation, size limits, and recovery copy (encrypted export remains future hardening)
+- [x] Escape user-entered receipt HTML and validate receipt data before rendering
+- [x] Improve persistence reliability with debounced atomic saves and failure recovery
+- [x] Remove unused native audio/video plugins and verify offline Android permissions
+- [ ] Add barcode scanning, product sorting, stock movement details, and sale-detail expansion
+- [ ] Add report presets and explicit date-boundary handling
+- [ ] Add receipt deletion safeguards and native-flow validation
+- [x] Add accessibility labels, roles, focus states, and touch-target polish
+- [ ] Split the monolithic screen into maintainable module components
+- [x] Run full validation and save the upgraded project checkpoint
