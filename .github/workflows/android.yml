@@ -22,32 +22,26 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
-
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.12.0
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
       - name: TypeScript check
         run: pnpm check
-
       - name: Unit tests
         run: pnpm test
-
       - name: Lint
         run: pnpm lint
 
   android:
-    name: Build installable Android APK
+    name: Build Android APK
     needs: test
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
@@ -55,59 +49,93 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
-
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9.12.0
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-
       - name: Set up Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-
       - name: Install Android SDK packages
         run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
       - name: Generate Android project
         env:
           CI: "1"
         run: pnpm exec expo prebuild --platform android --no-install
-
+      - name: Validate protected signing secrets
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing required GitHub Actions secret: ${name}"
+              exit 1
+            fi
+          done
+      - name: Configure protected release signing
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/app/release.keystore
+          chmod +x scripts/configure_android_release_signing.sh
+          scripts/configure_android_release_signing.sh
+      - name: Build protected release APK
+        if: startsWith(github.ref, 'refs/tags/v')
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
       - name: Build debug APK
+        if: "!startsWith(github.ref, 'refs/tags/v')"
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon --stacktrace
-
-      - name: Collect APK
+      - name: Collect release APK
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          mkdir -p dist
+          cp android/app/build/outputs/apk/release/app-release.apk dist/shopmate-offline-release.apk
+      - name: Collect debug APK
+        if: "!startsWith(github.ref, 'refs/tags/v')"
         run: |
           mkdir -p dist
           cp android/app/build/outputs/apk/debug/app-debug.apk dist/shopmate-offline-debug.apk
-
-      - name: Upload APK artifact
+      - name: Upload release APK artifact
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: shopmate-offline-release-apk
+          path: dist/shopmate-offline-release.apk
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload debug APK artifact
+        if: "!startsWith(github.ref, 'refs/tags/v')"
         uses: actions/upload-artifact@v4
         with:
           name: shopmate-offline-debug-apk
           path: dist/shopmate-offline-debug.apk
           if-no-files-found: error
           retention-days: 30
-
-      - name: Publish tagged GitHub release
+      - name: Publish protected tagged GitHub release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: dist/shopmate-offline-debug.apk
+          files: dist/shopmate-offline-release.apk
           fail_on_unmatched_files: true

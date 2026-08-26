@@ -63,7 +63,7 @@ The web preview is useful for layout inspection, but native behavior such as cam
 
 ## Building an installable APK
 
-The repository includes a GitHub Actions workflow that runs checks for every push and pull request. Pushing a version tag such as `v1.0.0` also starts the Android build job. The tag workflow creates a debug-signed, installable APK for the initial GitHub release and attaches it to the release page.
+The repository includes a GitHub Actions workflow that runs checks for every push and pull request. Normal pushes build a debug APK for validation. Pushing a version tag such as `v1.1.0` starts the protected Android release job, which signs the APK with a keystore supplied through GitHub Actions Secrets and attaches the signed artifact to the release page.
 
 To create the first automated release after the workflow has been pushed:
 
@@ -72,7 +72,7 @@ git tag -a v1.0.0 -m "ShopMate Offline 1.0.0"
 git push origin v1.0.0
 ```
 
-The workflow output is available under the repository’s **Actions** tab. The generated APK is also uploaded as an Actions artifact. The release artifact is intended for device installation and testing; a production Play Store release should use a protected signing keystore and a separate signed-release workflow.
+The workflow output is available under the repository’s **Actions** tab. The generated APK is also uploaded as an Actions artifact. The tagged release artifact is signed with the protected production keystore configured below. Keep the keystore and passwords outside Git; the workflow fails clearly when a tagged release is missing a required secret.
 
 For the managed Manus project, the recommended APK path is to create a project checkpoint and use the **Publish** action in the project interface. Do not run a resource-heavy Android build in the sandbox when the managed publishing flow is available.
 
@@ -96,12 +96,21 @@ Backups are not uploaded automatically. Keep at least one copy outside the devic
 
 The workflow is intentionally split into test and Android-build jobs. The test job runs TypeScript checking, nine deterministic domain tests, and lint. The Android job installs dependencies, generates the native Android project through Expo prebuild, builds the debug APK, uploads the APK artifact, and on version tags publishes the APK to the corresponding GitHub release.
 
-For a signed production build, add repository or environment secrets for the Android keystore and change the workflow to use a protected signing configuration. Never commit keystores, passwords, API keys, `.env` files, or personal credentials to this repository.
+For signed production builds, add these protected GitHub Actions Secrets before pushing a version tag:
+
+| Secret | Value |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | Base64-encoded production `.keystore` file. |
+| `ANDROID_KEYSTORE_PASSWORD` | Keystore password. |
+| `ANDROID_KEY_ALIAS` | Signing-key alias. |
+| `ANDROID_KEY_PASSWORD` | Signing-key password. |
+
+Never commit keystores, passwords, API keys, `.env` files, or personal credentials to this repository. The workflow creates the keystore temporarily on the hosted runner, configures the generated Gradle project, builds `assembleRelease`, and then uploads only the APK artifact.
 
 ## Support and attribution
 
 ShopMate Offline is developed by **JM Majiwa**. For support, copy **streetpandacyber@gmail.com** or **+254 745 198 099** from the in-app About section.
 
-## License
+## License and contributions
 
-No license has been declared yet. Until a license is added, all rights remain with the repository owner.
+This repository is licensed under the [MIT License](LICENSE). Contribution standards, testing expectations, offline constraints, secret handling, and release conventions are documented in [CONTRIBUTING.md](CONTRIBUTING.md).

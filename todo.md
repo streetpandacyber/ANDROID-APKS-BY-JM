@@ -209,3 +209,7 @@
 - [x] Add comprehensive README with Android build and offline-use instructions to GitHub
 - [x] Configure and verify GitHub Actions testing and APK build workflow
 - [x] Create and publish the initial tagged GitHub release with APK artifact when available
+
+- [ ] Add protected production keystore signing configuration for GitHub release builds
+- [ ] Add an open-source license to the repository
+- [ ] Add contribution guidelines to the repository
