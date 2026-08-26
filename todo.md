@@ -220,3 +220,6 @@
 
 - [x] Remove remaining unused Receipt Book filter-state warnings
 - [x] Resolve the ESLint module-type warning without breaking Expo configuration
+
+- [ ] Push clean-build changes to GitHub
+- [ ] Trigger and verify a new GitHub Actions Android APK build
