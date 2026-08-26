@@ -251,3 +251,5 @@
 - [x] Validate and push the Expo build workflow update
 - [ ] Push a small commit to trigger the EAS GitHub Actions workflow
 - [ ] Verify the triggered workflow and EAS build status
+- [ ] Check EAS build status, APK availability, and GitHub Actions logs for errors
+- [ ] Diagnose and resolve the reported GitHub Actions EAS workflow failure
