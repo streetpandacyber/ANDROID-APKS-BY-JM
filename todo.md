@@ -194,3 +194,5 @@
 - [x] Add real-time POS calculator expression validation hints while typing
 - [x] Add quick receipt PDF-layout preview before export
 - [x] Add toast confirmation after Receipt Book Reset All filters
+
+- [x] Add unmatched-parenthesis hints and contextual keypad highlighting in the POS calculator
