@@ -202,3 +202,6 @@
 - [x] Add dashboard support card linking to the About section
 - [x] Display current app version and release date below the developer credit
 - [x] Add tap-to-copy email and WhatsApp actions with success toast
+
+- [ ] Analyze selected GitHub repository state, remote, and recent history
+- [ ] Push the current validated ShopMate Offline project changes to GitHub
