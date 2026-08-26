@@ -195,3 +195,6 @@
 - [x] Keep POS Sell search and category controls sticky above the product list
 
 - [x] Move the remaining cashier name/PIN/start-shift controls completely out of the POS Sell header
+
+- [x] Add JM Majiwa developer credit to app information
+- [x] Add Street Panda Cyber support email and WhatsApp contact
