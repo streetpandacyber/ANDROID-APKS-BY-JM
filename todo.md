@@ -183,3 +183,7 @@
 - [x] Add persisted optional POS-calculator auto-balance-parentheses setting
 - [x] Add divide-by-zero and other invalid-state hints with visual keypad feedback
 - [x] Auto-close unmatched parentheses on equals when auto-balance is enabled
+
+- [x] Add automatic correction for repeated POS-calculator operators
+- [x] Add calculator Settings help panel for auto-balance and validation rules
+- [x] Add physical keyboard input support for the POS calculator
