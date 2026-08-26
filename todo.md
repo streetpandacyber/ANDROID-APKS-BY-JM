@@ -198,3 +198,7 @@
 
 - [x] Add JM Majiwa developer credit to app information
 - [x] Add Street Panda Cyber support email and WhatsApp contact
+
+- [x] Add dashboard support card linking to the About section
+- [x] Display current app version and release date below the developer credit
+- [x] Add tap-to-copy email and WhatsApp actions with success toast
