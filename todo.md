@@ -242,3 +242,7 @@
 - [x] Add accessibility labels, roles, focus states, and touch-target polish
 - [ ] Split the monolithic screen into maintainable module components
 - [x] Run full validation and save the upgraded project checkpoint
+- [ ] Check current EAS preview build status and APK availability
+- [ ] Set up Expo Observe for the linked Expo app
+- [ ] Validate Expo Observe configuration and save a checkpoint
+- [ ] Push the current project state to GitHub after the Expo Observe decision
