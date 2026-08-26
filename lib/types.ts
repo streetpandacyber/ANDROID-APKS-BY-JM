@@ -86,6 +86,8 @@ export type ReceiptLine = { description: string; quantity: number; unitPrice: nu
 
 export type ReceiptThumbnail = { title: string; total: number; currency: string; date: string; itemCount: number; imageUri?: string };
 
+export type PosCalculatorEntry = { id: string; expression: string; result: number; createdAt: string };
+
 export type ReceiptEntry = {
   id: string;
   receiptNumber: string;
@@ -136,6 +138,7 @@ export type AppState = {
   notebooks: NotebookEntry[];
   receipts: ReceiptEntry[];
   calculatorHistory: string[];
+  posCalculatorHistory: PosCalculatorEntry[];
   auditLog: AuditEntry[];
   activeShiftId?: string;
 };
@@ -148,7 +151,7 @@ export const initialState: AppState = {
     { id: "rice", name: "Premium Rice", sku: "RIC-003", category: "Groceries", price: 1450, quantityType: "kg", overallStock: 18, soldStock: 0, taxRate: 0, lowStockThreshold: 4 },
     { id: "soap", name: "Laundry Soap", sku: "SOP-004", category: "Household", price: 350, quantityType: "unit", overallStock: 5, soldStock: 0, taxRate: 0, lowStockThreshold: 6 },
   ],
-  cashiers: [], shifts: [], stockAdjustments: [], sales: [], notebooks: [], receipts: [], calculatorHistory: [], auditLog: [],
+  cashiers: [], shifts: [], stockAdjustments: [], sales: [], notebooks: [], receipts: [], calculatorHistory: [], posCalculatorHistory: [], auditLog: [],
 };
 
 export function freshId(prefix: string) { return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`; }

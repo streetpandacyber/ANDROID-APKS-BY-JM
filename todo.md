@@ -179,3 +179,6 @@
 
 - [x] Complete dedicated POS calculator UI and Send to Cart workflow
 - [x] Apply compact action-row layout to remaining crowded controls across the app
+
+- [x] Persist POS calculator history and allow users to reuse previous calculations
+- [x] Add visual success toast and subtle animation after POS calculator Send to Cart
