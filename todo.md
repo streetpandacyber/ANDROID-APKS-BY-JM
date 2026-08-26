@@ -253,3 +253,6 @@
 - [x] Verify the triggered workflow and EAS build status
 - [x] Check EAS build status, APK availability, and GitHub Actions logs for errors
 - [x] Diagnose and resolve the reported GitHub Actions EAS workflow failure
+- [ ] Inspect the newest workflow logs after the dependency-installation fix
+- [ ] Remove GitHub Actions Node.js 20 deprecation warnings
+- [ ] Add EAS cli.appVersionSource configuration and push the fixes
