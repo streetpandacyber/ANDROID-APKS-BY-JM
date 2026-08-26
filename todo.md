@@ -217,3 +217,6 @@
 - [x] Add About-section debug/release build indicator
 - [ ] Add GitHub release update notification without violating the offline requirement
 - [x] Add dashboard feedback form with an offline-safe submission path or approved online submission
+
+- [x] Remove remaining unused Receipt Book filter-state warnings
+- [x] Resolve the ESLint module-type warning without breaking Expo configuration
