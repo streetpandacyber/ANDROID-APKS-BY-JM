@@ -249,7 +249,7 @@
 - [ ] Verify Expo and GitHub build-path connection and document required setup
 - [x] Update GitHub Actions to submit automatic EAS preview APK builds with EXPO_TOKEN
 - [x] Validate and push the Expo build workflow update
-- [ ] Push a small commit to trigger the EAS GitHub Actions workflow
-- [ ] Verify the triggered workflow and EAS build status
-- [ ] Check EAS build status, APK availability, and GitHub Actions logs for errors
-- [ ] Diagnose and resolve the reported GitHub Actions EAS workflow failure
+- [x] Push a small commit to trigger the EAS GitHub Actions workflow
+- [x] Verify the triggered workflow and EAS build status
+- [x] Check EAS build status, APK availability, and GitHub Actions logs for errors
+- [x] Diagnose and resolve the reported GitHub Actions EAS workflow failure
