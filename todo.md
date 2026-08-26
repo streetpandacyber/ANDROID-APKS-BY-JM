@@ -187,3 +187,5 @@
 - [x] Add automatic correction for repeated POS-calculator operators
 - [x] Add calculator Settings help panel for auto-balance and validation rules
 - [x] Add physical keyboard input support for the POS calculator
+
+- [x] Fix narrow POS Sell layout: remove empty gap, prevent clipped sub-tabs, and eliminate nested scrollbars
