@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, calculateDashboardMetrics, calculateReceiptTotals, calculateSale, canAuthorizeAction, filterSales, filterStock, isLowStock, isValidBackup } from "../lib/domain";
+import { balanceStock, calculateDashboardMetrics, calculateReceiptTotals, calculateSale, canAuthorizeAction, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 
 const product: Product = { ...initialState.products[0], overallStock: 10, soldStock: 3, lowStockThreshold: 7 };
@@ -52,6 +52,13 @@ describe("offline business rules", () => {
   it("accepts app, edit, or cashier PINs for protected actions", () => {
     expect(canAuthorizeAction("2468", "1357", "2468")).toBe(true);
     expect(canAuthorizeAction("9999", "1357", "2468", "1111")).toBe(false);
+  });
+
+  it("matches products by barcode or SKU for offline scanning", () => {
+    const coded = { ...product, barcode: "6161234567890", sku: "BRD-001" };
+    expect(findProductByBarcode([coded], "6161234567890")?.id).toBe(coded.id);
+    expect(findProductByBarcode([coded], "BRD-001")?.id).toBe(coded.id);
+    expect(findProductByBarcode([coded], "unknown")).toBeUndefined();
   });
 
   it("accepts only compatible backup envelopes", () => {

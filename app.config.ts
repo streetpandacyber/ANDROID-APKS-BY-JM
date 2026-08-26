@@ -92,6 +92,7 @@ const config: ExpoConfig = {
   },
   plugins: [
     "expo-router",
+    ["expo-camera", { "cameraPermission": "Allow ShopMate Offline to scan product barcodes." }],
     "expo-font",
     "expo-web-browser",
     [

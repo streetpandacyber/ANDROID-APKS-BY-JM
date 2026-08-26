@@ -16,3 +16,11 @@
 ## Implementation direction
 
 The app keeps ordinary business records in AsyncStorage for now, while app/owner/cashier/edit PIN values are moved to a platform-safe credential vault. Backups omit credentials, enforce a 10 MB size limit, and validate the versioned envelope before restore. Receipt HTML user values are escaped before interpolation. Unused audio/video native packages and plugins are being removed to reduce permissions and native surface area.
+
+## Barcode scanning documentation consulted
+
+- Expo Camera documentation: https://docs.expo.dev/versions/latest/sdk/camera/
+  - `CameraView` supports `barcodeScannerSettings` and `onBarcodeScanned`.
+  - Barcode callbacks should be disabled after the first scan to avoid duplicate triggers.
+  - Camera permission must be requested before rendering the camera preview, and only one preview should be active at a time.
+  - The scanner can be configured for common formats including `ean13`, `ean8`, `code128`, and `qr`.

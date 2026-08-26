@@ -234,7 +234,10 @@
 - [x] Improve persistence reliability with debounced atomic saves and failure recovery
 - [x] Remove unused native audio/video plugins and verify offline Android permissions
 - [ ] Add barcode scanning, product sorting, stock movement details, and sale-detail expansion
-- [ ] Add report presets and explicit date-boundary handling
+- [x] Add offline barcode scanning and barcode product lookup
+- [x] Add richer report presets and local report exports
+- [x] Prepare signed APK build configuration for physical-device testing
+- [x] Add report presets and explicit date-boundary handling
 - [ ] Add receipt deletion safeguards and native-flow validation
 - [x] Add accessibility labels, roles, focus states, and touch-target polish
 - [ ] Split the monolithic screen into maintainable module components

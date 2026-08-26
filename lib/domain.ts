@@ -34,6 +34,8 @@ export function calculateDashboardMetrics(sales: Sale[], products: Product[], da
 
 export function canAuthorizeAction(inputPin: string, appPin?: string, editPin?: string, cashierPin?: string) { return Boolean(inputPin) && [appPin, editPin, cashierPin].some(pin => Boolean(pin) && pin === inputPin); }
 
+export function findProductByBarcode(products: Product[], code: string) { const normalized = code.trim(); if (!normalized) return undefined; return products.find(product => product.barcode?.trim() === normalized || product.sku.trim() === normalized); }
+
 export function isValidBackup(value: unknown): value is { version: number; state: AppState } {
   if (!value || typeof value !== "object") return false;
   const candidate = value as { version?: unknown; state?: AppState };
