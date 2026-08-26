@@ -114,3 +114,9 @@ ShopMate Offline is developed by **JM Majiwa**. For support, copy **streetpandac
 ## License and contributions
 
 This repository is licensed under the [MIT License](LICENSE). Contribution standards, testing expectations, offline constraints, secret handling, and release conventions are documented in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Automatic Expo/EAS builds from GitHub Actions
+
+The Android workflow runs the project checks first, then submits an EAS Android APK build for non-pull-request pushes. Pushes to `main` use the `preview` profile and version tags such as `v1.0.1` use the `production` profile. Both profiles produce APK output; signing is handled by EAS managed credentials.
+
+To enable automatic submissions, add an Actions secret named `EXPO_TOKEN` in the GitHub repository at **Settings → Secrets and variables → Actions**. Create the token from the Expo account that owns `@lenajabas-team/shopmate-offline`, grant only the permissions needed to submit builds, and never commit the token or print it in workflow logs. The workflow verifies the Expo account and EAS project, then submits the build and prints the EAS build URL. Pull requests run validation only and do not submit builds.
