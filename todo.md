@@ -186,3 +186,7 @@
 - [x] Allow editing mathematical expressions when reusing POS-calculator history entries
 - [x] Show EAT timestamps and delete individual POS-calculator history entries
 - [x] Complete Receipt Book detail preview modal and add customer/date filter controls
+
+- [x] Add visual invalid-expression feedback before saving POS calculator history
+- [x] Add direct Export to PDF action on Receipt Book history thumbnails
+- [x] Add Reset All control for Receipt Book filters
