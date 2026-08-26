@@ -223,3 +223,6 @@
 
 - [ ] Push clean-build changes to GitHub
 - [ ] Trigger and verify a new GitHub Actions Android APK build
+- [ ] Provide a direct debug APK download link after the GitHub Actions artifact is available
+- [x] Connect the project to Expo build services using the supplied credential
+- [x] Verify Expo project configuration and APK build readiness
