@@ -247,5 +247,5 @@
 - [ ] Validate Expo Observe configuration and save a checkpoint
 - [x] Push the current project state to GitHub after the Expo Observe decision
 - [ ] Verify Expo and GitHub build-path connection and document required setup
-- [ ] Update GitHub Actions to submit automatic EAS preview APK builds with EXPO_TOKEN
-- [ ] Validate and push the Expo build workflow update
+- [x] Update GitHub Actions to submit automatic EAS preview APK builds with EXPO_TOKEN
+- [x] Validate and push the Expo build workflow update
