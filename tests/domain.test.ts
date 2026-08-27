@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows } from "../lib/domain";
+import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackup } from "../lib/backup-crypto";
+import { formatEAT } from "../lib/time";
 
 const product: Product = { ...initialState.products[0], overallStock: 10, soldStock: 3, lowStockThreshold: 7 };
 
@@ -186,6 +187,21 @@ describe("offline business rules", () => {
     const wrongPhone = matchMpesaStatementRows([{ rowNumber: 2, confirmationCode: "ABC123", amount: 500, phone: "0799999999" }], sales);
     expect(wrongPhone.matches).toHaveLength(0);
     expect(wrongPhone.unmatched).toHaveLength(1);
+  });
+
+  it("supports custom CSV column mapping for alternate statement layouts", () => {
+    const csv = "Narration,When,Value,Mobile,Ref\nPayment,27 Aug 2026 09:15, KSH 500.00,0712345678,abc123";
+    const preview = inspectMpesaStatementCsv(csv);
+    expect(preview.headers).toEqual(["Narration", "When", "Value", "Mobile", "Ref"]);
+    const suggested = suggestMpesaStatementMapping(preview.headers);
+    expect(suggested).toEqual({ confirmationCode: 4, amount: 2, phone: 3, occurredAt: 1 });
+    const parsed = parseMpesaStatementCsv(csv, { confirmationCode: 4, amount: 2, phone: 3, occurredAt: 1 });
+    expect(parsed.rows[0]).toMatchObject({ confirmationCode: "ABC123", amount: 500, phone: "0712345678", occurredAt: "27 Aug 2026 09:15" });
+  });
+
+  it("formats known timestamps in East Africa Time", () => {
+    expect(formatEAT("2026-08-27T00:00:00.000Z", "dateTime")).toContain("03:00:00");
+    expect(formatEAT("2026-08-27T00:00:00.000Z", "date")).toContain("27");
   });
 
   it("accepts only compatible backup envelopes", () => {

@@ -292,3 +292,7 @@
 - [x] Add reconciliation history CSV and PDF export actions
 - [x] Update support branding to Dev by JM Majiwa, streetpandacyber@gmail.com, and WhatsApp 0745198099
 - [x] Add deterministic tests for statement matching, reconciliation filters, and export rows
+- [x] Add customizable CSV column mapping for M-Pesa statement import
+- [x] Add live EAT date and time display in the application header
+- [x] Apply consistent EAT date-time display across internal records, data views, and receipts
+- [x] Add deterministic tests for mapped CSV imports and EAT date-time formatting

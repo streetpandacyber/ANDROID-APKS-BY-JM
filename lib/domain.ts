@@ -89,32 +89,35 @@ export function filterReconciliationHistory(entries: AuditEntry[], sales: Sale[]
   }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-export type ReconciliationExportRow = { reconciledAt: string; transactionDate: string; receiptNumber: string; saleId: string; saleCashier: string; recordedBy: string; authorizedBy: string; amount: number; phone: string; status: "reconciled" };
+export type ReconciliationExportRow = { reconciledAt: string; transactionAt?: string; transactionDate: string; receiptNumber: string; saleId: string; saleCashier: string; recordedBy: string; authorizedBy: string; amount: number; phone: string; status: "reconciled" };
 export function buildReconciliationExportRows(entries: AuditEntry[], sales: Sale[], dateKey: (value: string) => string = value => value.slice(0, 10)): ReconciliationExportRow[] {
   return entries.filter(entry => entry.type === "reconciliation").map(entry => {
     const sale = reconciliationSale(entry, sales);
-    return { reconciledAt: entry.createdAt, transactionDate: sale ? dateKey(sale.createdAt) : "", receiptNumber: sale?.mpesaReceiptNumber || entry.action.replace("RECONCILE M-PESA ", ""), saleId: entry.saleId || "", saleCashier: sale?.cashierName || "", recordedBy: entry.cashierName || "Owner", authorizedBy: entry.authorizedBy || entry.cashierName || "Owner", amount: sale?.total ?? 0, phone: sale?.mpesaPhone || "", status: "reconciled" as const };
+    return { reconciledAt: entry.createdAt, transactionAt: sale?.createdAt, transactionDate: sale ? dateKey(sale.createdAt) : "", receiptNumber: sale?.mpesaReceiptNumber || entry.action.replace("RECONCILE M-PESA ", ""), saleId: entry.saleId || "", saleCashier: sale?.cashierName || "", recordedBy: entry.cashierName || "Owner", authorizedBy: entry.authorizedBy || entry.cashierName || "Owner", amount: sale?.total ?? 0, phone: sale?.mpesaPhone || "", status: "reconciled" as const };
   }).sort((a, b) => b.reconciledAt.localeCompare(a.reconciledAt));
 }
 
 export type MpesaStatementRow = { rowNumber: number; confirmationCode: string; amount: number; phone?: string; occurredAt?: string };
 export type MpesaStatementMatch = { row: MpesaStatementRow; sale: Sale };
 export type MpesaStatementParseResult = { rows: MpesaStatementRow[]; invalidRows: number[] };
+export type MpesaStatementColumnMapping = { confirmationCode: number; amount: number; phone: number; occurredAt: number };
+export type MpesaStatementCsvPreview = { headers: string[]; rows: string[][] };
+export function inspectMpesaStatementCsv(csv: string): MpesaStatementCsvPreview { const lines = csv.replace(/^\uFEFF/, "").split(/\r?\n/).filter(line => line.trim()); return { headers: lines.length ? parseCsvLine(lines[0]) : [], rows: lines.slice(1, 4).map(parseCsvLine) }; }
+function findStatementColumn(headers: string[], candidates: string[]) { return headers.map(normalizeCsvHeader).findIndex(header => candidates.some(candidate => header.includes(candidate))); }
+export function suggestMpesaStatementMapping(headers: string[]): MpesaStatementColumnMapping { return { confirmationCode: findStatementColumn(headers, ["confirmationcode", "receipt", "transactioncode", "transactionid", "mpesacode", "reference", "ref"]), amount: findStatementColumn(headers, ["amount", "paid", "credit", "value"]), phone: findStatementColumn(headers, ["phone", "mobile", "msisdn", "phonereference"]), occurredAt: findStatementColumn(headers, ["datetime", "timestamp", "date", "time", "when"]) }; }
 export type MpesaStatementMatchResult = { matches: MpesaStatementMatch[]; unmatched: MpesaStatementRow[]; duplicateRows: MpesaStatementRow[] };
 function normalizeCsvHeader(value: string) { return value.replace(/^\uFEFF/, "").trim().toLowerCase().replace(/[^a-z0-9]/g, ""); }
 function parseCsvLine(line: string) { const cells: string[] = []; let cell = ""; let quoted = false; for (let index = 0; index < line.length; index += 1) { const char = line[index]; if (char === '"') { if (quoted && line[index + 1] === '"') { cell += '"'; index += 1; } else quoted = !quoted; } else if (char === "," && !quoted) { cells.push(cell.trim()); cell = ""; } else cell += char; } cells.push(cell.trim()); return cells; }
 function parseStatementAmount(value: string) { const normalized = value.replace(/\s/g, "").replace(/[^0-9.\-()]/g, ""); if (!normalized) return undefined; const parenthesized = normalized.startsWith("(") && normalized.endsWith(")"); const numeric = Number(normalized.replace(/[()]/g, "")); if (!Number.isFinite(numeric)) return undefined; return parenthesized ? -numeric : numeric; }
 function normalizeReceiptCode(value: string) { return value.trim().toUpperCase().replace(/\s+/g, ""); }
 function normalizePhone(value?: string) { if (!value) return ""; return value.replace(/\D/g, "").replace(/^254/, "0"); }
-export function parseMpesaStatementCsv(csv: string): MpesaStatementParseResult {
+export function parseMpesaStatementCsv(csv: string, mapping?: MpesaStatementColumnMapping): MpesaStatementParseResult {
   const lines = csv.replace(/^\uFEFF/, "").split(/\r?\n/).filter(line => line.trim());
   if (lines.length < 2) return { rows: [], invalidRows: [] };
-  const headers = parseCsvLine(lines[0]).map(normalizeCsvHeader);
-  const findColumn = (candidates: string[]) => headers.findIndex(header => candidates.some(candidate => header.includes(candidate)));
-  const codeIndex = findColumn(["confirmationcode", "receipt", "transactioncode", "transactionid", "mpesacode", "reference"]);
-  const amountIndex = findColumn(["amount", "paid", "credit", "value"]);
-  const phoneIndex = findColumn(["phone", "mobile", "msisdn", "phonereference"]);
-  const dateIndex = findColumn(["datetime", "timestamp", "date", "time"]);
+  const headers = parseCsvLine(lines[0]);
+  const selected = mapping || suggestMpesaStatementMapping(headers);
+  const codeIndex = selected.confirmationCode;
+  const amountIndex = selected.amount;
   if (codeIndex < 0 || amountIndex < 0) return { rows: [], invalidRows: Array.from({ length: lines.length - 1 }, (_, index) => index + 2) };
   const rows: MpesaStatementRow[] = [];
   const invalidRows: number[] = [];
@@ -123,7 +126,7 @@ export function parseMpesaStatementCsv(csv: string): MpesaStatementParseResult {
     const confirmationCode = normalizeReceiptCode(cells[codeIndex] || "");
     const amount = parseStatementAmount(cells[amountIndex] || "");
     if (!confirmationCode || amount === undefined || amount <= 0) { invalidRows.push(index + 2); return; }
-    rows.push({ rowNumber: index + 2, confirmationCode, amount: Math.round(amount * 100) / 100, phone: cells[phoneIndex]?.trim() || undefined, occurredAt: cells[dateIndex]?.trim() || undefined });
+    rows.push({ rowNumber: index + 2, confirmationCode, amount: Math.round(amount * 100) / 100, phone: selected.phone >= 0 ? cells[selected.phone]?.trim() || undefined : undefined, occurredAt: selected.occurredAt >= 0 ? cells[selected.occurredAt]?.trim() || undefined : undefined });
   });
   return { rows, invalidRows };
 }
