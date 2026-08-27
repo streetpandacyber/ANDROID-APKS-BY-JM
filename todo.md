@@ -296,3 +296,7 @@
 - [x] Add live EAT date and time display in the application header
 - [x] Apply consistent EAT date-time display across internal records, data views, and receipts
 - [x] Add deterministic tests for mapped CSV imports and EAT date-time formatting
+- [x] Add EAT-aware date range filters to reconciliation reports and sales views
+- [x] Add a subtle live indicator animation to the lock-screen EAT clock
+- [x] Add saved custom CSV mapping templates with reuse and management actions
+- [x] Add deterministic tests for EAT date-range filtering and mapping templates

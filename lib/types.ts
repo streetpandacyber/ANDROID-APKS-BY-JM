@@ -116,6 +116,15 @@ export type ReceiptEntry = {
   deletedAt?: string;
 };
 
+export type MpesaMappingTemplate = {
+  id: string;
+  name: string;
+  headersSignature: string;
+  mapping: { confirmationCode: number; amount: number; phone: number; occurredAt: number };
+  createdAt: string;
+  updatedAt?: string;
+};
+
 export type AppSettings = {
   currency: string;
   decimalPlaces: number;
@@ -137,6 +146,7 @@ export type AppSettings = {
   autoBalanceParentheses?: boolean;
   latestKnownVersion?: string;
   latestKnownReleaseDate?: string;
+  mpesaMappingTemplates?: MpesaMappingTemplate[];
 };
 
 export type FeedbackEntry = {
@@ -165,7 +175,7 @@ export type AppState = {
 
 export const initialState: AppState = {
   schemaVersion: 2,
-  settings: { currency: "KSH", decimalPlaces: 2, theme: "dark", pinEnabled: true, editPinEnabled: false, receiptTemplate: "classic", thermalWidth: "80mm", businessName: "ShopMate Offline", receiptFooter: "Thank you for shopping with us.", developerName: "JM Majiwa", autoBalanceParentheses: false, latestKnownVersion: "1.0.0", latestKnownReleaseDate: "26 August 2026" },
+  settings: { currency: "KSH", decimalPlaces: 2, theme: "dark", pinEnabled: true, editPinEnabled: false, receiptTemplate: "classic", thermalWidth: "80mm", businessName: "ShopMate Offline", receiptFooter: "Thank you for shopping with us.", developerName: "JM Majiwa", autoBalanceParentheses: false, latestKnownVersion: "1.0.0", latestKnownReleaseDate: "26 August 2026", mpesaMappingTemplates: [] },
   products: [
     { id: "bread", name: "Bread", sku: "BRD-001", category: "Bakery", price: 60, quantityType: "unit", overallStock: 34, soldStock: 0, taxRate: 0, lowStockThreshold: 8 },
     { id: "milk", name: "Fresh Milk", sku: "MLK-002", category: "Dairy", price: 480, quantityType: "liter", overallStock: 12, soldStock: 0, taxRate: 0, lowStockThreshold: 3 },

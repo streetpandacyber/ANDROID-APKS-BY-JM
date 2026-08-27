@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping } from "../lib/domain";
+import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping, isWithinDateRange, mpesaStatementHeadersSignature } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackup } from "../lib/backup-crypto";
 import { formatEAT } from "../lib/time";
@@ -41,6 +41,12 @@ describe("offline business rules", () => {
     expect(filterSales(sales, "Amina", "2026-08-20", "2026-08-20")).toHaveLength(1);
     expect(filterSales(sales, "All", "2026-08-21", "2026-08-23")[0].cashierName).toBe("Brian");
     expect(filterSales(sales, "All", "2026-08-20", "2026-08-20", () => "2026-08-21")).toHaveLength(0);
+  });
+
+  it("uses inclusive EAT date boundaries and stable statement header signatures", () => {
+    expect(isWithinDateRange("2026-08-27T00:30:00Z", "2026-08-27", "2026-08-27", value => value.slice(0, 10))).toBe(true);
+    expect(isWithinDateRange("2026-08-28T00:00:00Z", "2026-08-27", "2026-08-27", value => value.slice(0, 10))).toBe(false);
+    expect(mpesaStatementHeadersSignature([" Transaction Code ", "Amount (KSH)", "Phone Ref"])) .toBe("transactioncode|amountksh|phoneref");
   });
 
   it("filters stock by status, movement date, and search text", () => {

@@ -38,7 +38,8 @@ export function isLowStock(product: Product) {
   return balanceStock(product) <= product.lowStockThreshold;
 }
 
-export function filterSales(sales: Sale[], cashier = "All", from = "", to = "", dateKey: (value: string) => string = value => value.slice(0, 10)) { return sales.filter(sale => (cashier === "All" || sale.cashierName === cashier) && (!from || dateKey(sale.createdAt) >= from) && (!to || dateKey(sale.createdAt) <= to)); }
+export function isWithinDateRange(value: string, from = "", to = "", dateKey: (value: string) => string = value => value.slice(0, 10)) { const day = dateKey(value); return (!from || day >= from) && (!to || day <= to); }
+export function filterSales(sales: Sale[], cashier = "All", from = "", to = "", dateKey: (value: string) => string = value => value.slice(0, 10)) { return sales.filter(sale => (cashier === "All" || sale.cashierName === cashier) && isWithinDateRange(sale.createdAt, from, to, dateKey)); }
 
 export function filterStock(products: Product[], adjustments: StockAdjustment[], status: StockFilter = "all", date = "", search = "", dateKey: (value: string) => string = value => value.slice(0, 10)) { const query = search.trim().toLowerCase(); return products.filter(product => { const balance = balanceStock(product); const statusMatch = status === "all" || (status === "low" ? balance <= product.lowStockThreshold : balance > product.lowStockThreshold); const dateMatch = !date || adjustments.some(move => move.productId === product.id && dateKey(move.createdAt) === date); const searchMatch = !query || `${product.name} ${product.sku} ${product.category}`.toLowerCase().includes(query); return statusMatch && dateMatch && searchMatch; }); }
 
@@ -85,7 +86,7 @@ export function filterReconciliationHistory(entries: AuditEntry[], sales: Sale[]
     const sale = reconciliationSale(entry, sales);
     const recordCashier = reconciliationCashier(entry, sale);
     const haystack = `${entry.action} ${entry.saleId || ""} ${sale?.mpesaReceiptNumber || ""} ${sale?.mpesaPhone || ""} ${sale?.cashierName || ""} ${recordCashier} ${entry.authorizedBy || ""}`.toLowerCase();
-    return (cashier === "All" || recordCashier === cashier || sale?.cashierName === cashier || entry.authorizedBy === cashier) && (!from || dateKey(entry.createdAt) >= from) && (!to || dateKey(entry.createdAt) <= to) && (!query || haystack.includes(query));
+    return (cashier === "All" || recordCashier === cashier || sale?.cashierName === cashier || entry.authorizedBy === cashier) && isWithinDateRange(entry.createdAt, from, to, dateKey) && (!query || haystack.includes(query));
   }).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
@@ -107,6 +108,7 @@ function findStatementColumn(headers: string[], candidates: string[]) { return h
 export function suggestMpesaStatementMapping(headers: string[]): MpesaStatementColumnMapping { return { confirmationCode: findStatementColumn(headers, ["confirmationcode", "receipt", "transactioncode", "transactionid", "mpesacode", "reference", "ref"]), amount: findStatementColumn(headers, ["amount", "paid", "credit", "value"]), phone: findStatementColumn(headers, ["phone", "mobile", "msisdn", "phonereference"]), occurredAt: findStatementColumn(headers, ["datetime", "timestamp", "date", "time", "when"]) }; }
 export type MpesaStatementMatchResult = { matches: MpesaStatementMatch[]; unmatched: MpesaStatementRow[]; duplicateRows: MpesaStatementRow[] };
 function normalizeCsvHeader(value: string) { return value.replace(/^\uFEFF/, "").trim().toLowerCase().replace(/[^a-z0-9]/g, ""); }
+export function mpesaStatementHeadersSignature(headers: string[]) { return headers.map(normalizeCsvHeader).join("|"); }
 function parseCsvLine(line: string) { const cells: string[] = []; let cell = ""; let quoted = false; for (let index = 0; index < line.length; index += 1) { const char = line[index]; if (char === '"') { if (quoted && line[index + 1] === '"') { cell += '"'; index += 1; } else quoted = !quoted; } else if (char === "," && !quoted) { cells.push(cell.trim()); cell = ""; } else cell += char; } cells.push(cell.trim()); return cells; }
 function parseStatementAmount(value: string) { const normalized = value.replace(/\s/g, "").replace(/[^0-9.\-()]/g, ""); if (!normalized) return undefined; const parenthesized = normalized.startsWith("(") && normalized.endsWith(")"); const numeric = Number(normalized.replace(/[()]/g, "")); if (!Number.isFinite(numeric)) return undefined; return parenthesized ? -numeric : numeric; }
 function normalizeReceiptCode(value: string) { return value.trim().toUpperCase().replace(/\s+/g, ""); }
