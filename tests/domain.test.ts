@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, calculateDashboardMetrics, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup } from "../lib/domain";
+import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 
 const product: Product = { ...initialState.products[0], overallStock: 10, soldStock: 3, lowStockThreshold: 7 };
@@ -92,6 +92,23 @@ describe("offline business rules", () => {
     expect(filterReceipts(receipts, "", "", "over1000")[0].id).toBe("r2");
     expect(filterReceipts(receipts, "", "", "all", "oldest").map(receipt => receipt.id)).toEqual(["r1", "r2"]);
     expect(filterReceipts(receipts, "", "", "all", "amountHigh")[0].id).toBe("r2");
+  });
+
+  it("builds dedicated report rows with inclusive date boundaries", () => {
+    const shifts = [{ id: "shift-1", cashierName: "Amina", shiftName: "Morning", startedAt: "2026-08-20T08:00:00Z" }];
+    const sales = [
+      { id: "s1", shiftId: "shift-1", cashierName: "Amina", createdAt: "2026-08-20T09:00:00Z", items: [{ productId: "bread", name: "Bread", quantity: 2, quantityType: "unit" as const, unitPrice: 60, lineTotal: 120 }], subtotal: 120, discount: 0, refund: 10, total: 120, amountGiven: 200, change: 80 },
+      { id: "s2", shiftId: "shift-1", cashierName: "Amina", createdAt: "2026-08-21T09:00:00Z", items: [{ productId: "rice", name: "Rice", quantity: 1, quantityType: "kg" as const, unitPrice: 1450, lineTotal: 1450 }], subtotal: 1450, discount: 0, refund: 0, total: 1450, amountGiven: 1500, change: 50 },
+    ];
+    const products = [{ ...initialState.products[0] }, { ...initialState.products[2] }];
+    const daily = buildReportSnapshot("daily", sales, products, [], shifts, "2026-08-20", "2026-08-20");
+    expect(daily.transactions).toBe(1);
+    expect(daily.netSales).toBe(110);
+    expect(daily.rows[0]).toMatchObject({ label: "2026-08-20", value: 110, count: 1 });
+    expect(buildReportSnapshot("cashier", sales, products, [], shifts, "2026-08-20", "2026-08-21").rows[0].value).toBe(1560);
+    expect(buildReportSnapshot("product", sales, products, [], shifts, "2026-08-20", "2026-08-21").rows[0].label).toBe("Rice");
+    expect(buildReportSnapshot("stock", sales, products, [], shifts, "2026-08-20", "2026-08-21").rows[0].detail).toContain("balance");
+    expect(buildReportSnapshot("shift", sales, products, [], shifts, "2026-08-20", "2026-08-21").rows[0].label).toBe("Morning");
   });
 
   it("accepts only compatible backup envelopes", () => {

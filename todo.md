@@ -85,7 +85,7 @@
 - [ ] Add product cost/barcode/image/notes fields plus list sorting and stock filters
 - [x] Add POS cart internal calculator with payment states, quick cash, hold sale, print receipt, and clear confirmation
 - [ ] Add sale detail expansion, date/cashier filters, stock dashboard totals, progress bars, alerts, and movement history
-- [ ] Add daily, cashier, stock, product, and shift report types with generated metadata
+- [x] Add daily, cashier, stock, product, and shift report types with generated metadata
 
 - [x] Audit and remove any runtime API/cloud dependency from the app flows
 - [x] Add explicit OFFLINE MODE status badge with positive green styling
@@ -268,3 +268,5 @@
 - [x] Add deterministic Receipt Book safeguard tests and validate native-independent local flows
 - [x] Next upgrade: add cashier shift labels, recent activity, end-shift confirmation, and complete local shift summaries
 - [x] Add deterministic shift summary tests and validate local cashier flows
+- [x] Expanded Reports into daily, cashier, product, stock, and shift views with metadata, comparison totals, and inclusive EAT date boundaries
+- [x] Added deterministic report snapshot tests and validated local CSV export behavior
