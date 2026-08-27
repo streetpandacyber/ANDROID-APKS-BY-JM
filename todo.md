@@ -338,3 +338,7 @@
 - [x] Show JM Majiwa, support email, and app details beneath the launch hub
 - [x] Add deterministic tests for hub labels and dashboard-root routing
 - [x] Validate and checkpoint the four-module launch experience
+
+- [ ] Push the current ShopMate Offline launch-hub checkpoint to the connected GitHub repository
+- [ ] Trigger and verify the GitHub Actions Android build workflow
+- [ ] Record the resulting commit, workflow status, and APK artifact link if available
