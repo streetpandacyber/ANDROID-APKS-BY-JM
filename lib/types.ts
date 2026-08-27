@@ -120,6 +120,7 @@ export type MpesaMappingTemplate = {
   id: string;
   name: string;
   headersSignature: string;
+  headers?: string[];
   mapping: { confirmationCode: number; amount: number; phone: number; occurredAt: number };
   createdAt: string;
   updatedAt?: string;

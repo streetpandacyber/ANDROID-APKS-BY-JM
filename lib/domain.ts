@@ -1,4 +1,4 @@
-import type { AppState, AuditEntry, CartLine, Product, ReceiptEntry, Sale, Shift, StockAdjustment } from "./types";
+import type { AppState, AuditEntry, CartLine, MpesaMappingTemplate, Product, ReceiptEntry, Sale, Shift, StockAdjustment } from "./types";
 
 export type StockFilter = "all" | "low" | "inStock";
 export type DashboardMetrics = { netSales: number; itemsSold: number; transactions: number; lowStockCount: number };
@@ -109,6 +109,30 @@ export function suggestMpesaStatementMapping(headers: string[]): MpesaStatementC
 export type MpesaStatementMatchResult = { matches: MpesaStatementMatch[]; unmatched: MpesaStatementRow[]; duplicateRows: MpesaStatementRow[] };
 function normalizeCsvHeader(value: string) { return value.replace(/^\uFEFF/, "").trim().toLowerCase().replace(/[^a-z0-9]/g, ""); }
 export function mpesaStatementHeadersSignature(headers: string[]) { return headers.map(normalizeCsvHeader).join("|"); }
+export type MpesaMappingTemplateDetection = { template: MpesaMappingTemplate; mapping: MpesaStatementColumnMapping; confidence: number; exact: boolean };
+export function detectMpesaMappingTemplate(headers: string[], templates: MpesaMappingTemplate[]): MpesaMappingTemplateDetection | undefined {
+  const normalizedHeaders = headers.map(normalizeCsvHeader);
+  const suggested = suggestMpesaStatementMapping(headers);
+  const fields: (keyof MpesaStatementColumnMapping)[] = ["confirmationCode", "amount", "phone", "occurredAt"];
+  const candidates = templates.map(template => {
+    const storedHeaders = template.headers?.map(normalizeCsvHeader) || [];
+    const exact = Boolean(template.headersSignature && template.headersSignature === mpesaStatementHeadersSignature(headers));
+    const mapping = exact && !storedHeaders.length ? template.mapping : fields.reduce((result, field) => {
+      const storedIndex = template.mapping[field];
+      const storedHeader = storedIndex >= 0 ? storedHeaders[storedIndex] : "";
+      const directIndex = storedHeader ? normalizedHeaders.indexOf(storedHeader) : -1;
+      const fallbackIndex = suggested[field];
+      return { ...result, [field]: directIndex >= 0 ? directIndex : fallbackIndex };
+    }, {} as MpesaStatementColumnMapping);
+    const expectedFields = fields.filter(field => template.mapping[field] >= 0);
+    const matchedFields = expectedFields.filter(field => mapping[field] >= 0);
+    const requiredFieldsPresent = mapping.confirmationCode >= 0 && mapping.amount >= 0 && mapping.confirmationCode !== mapping.amount;
+    if (!requiredFieldsPresent || !expectedFields.length) return undefined;
+    const confidence = exact ? 1 : matchedFields.length / expectedFields.length;
+    return { template, mapping, confidence, exact } satisfies MpesaMappingTemplateDetection;
+  }).filter((candidate): candidate is MpesaMappingTemplateDetection => Boolean(candidate));
+  return candidates.sort((a, b) => b.confidence - a.confidence || Number(b.exact) - Number(a.exact))[0];
+}
 function parseCsvLine(line: string) { const cells: string[] = []; let cell = ""; let quoted = false; for (let index = 0; index < line.length; index += 1) { const char = line[index]; if (char === '"') { if (quoted && line[index + 1] === '"') { cell += '"'; index += 1; } else quoted = !quoted; } else if (char === "," && !quoted) { cells.push(cell.trim()); cell = ""; } else cell += char; } cells.push(cell.trim()); return cells; }
 function parseStatementAmount(value: string) { const normalized = value.replace(/\s/g, "").replace(/[^0-9.\-()]/g, ""); if (!normalized) return undefined; const parenthesized = normalized.startsWith("(") && normalized.endsWith(")"); const numeric = Number(normalized.replace(/[()]/g, "")); if (!Number.isFinite(numeric)) return undefined; return parenthesized ? -numeric : numeric; }
 function normalizeReceiptCode(value: string) { return value.trim().toUpperCase().replace(/\s+/g, ""); }

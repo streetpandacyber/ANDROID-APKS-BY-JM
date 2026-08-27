@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping, isWithinDateRange, mpesaStatementHeadersSignature } from "../lib/domain";
+import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping, detectMpesaMappingTemplate, isWithinDateRange, mpesaStatementHeadersSignature } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackup } from "../lib/backup-crypto";
 import { formatEAT } from "../lib/time";
@@ -203,6 +203,14 @@ describe("offline business rules", () => {
     expect(suggested).toEqual({ confirmationCode: 4, amount: 2, phone: 3, occurredAt: 1 });
     const parsed = parseMpesaStatementCsv(csv, { confirmationCode: 4, amount: 2, phone: 3, occurredAt: 1 });
     expect(parsed.rows[0]).toMatchObject({ confirmationCode: "ABC123", amount: 500, phone: "0712345678", occurredAt: "27 Aug 2026 09:15" });
+  });
+
+  it("auto-detects saved mappings across reordered headers and preserves confidence", () => {
+    const template = { id: "template-1", name: "Safaricom layout", headersSignature: mpesaStatementHeadersSignature(["Narration", "When", "Value", "Mobile", "Ref"]), headers: ["Narration", "When", "Value", "Mobile", "Ref"], mapping: { confirmationCode: 4, amount: 2, phone: 3, occurredAt: 1 }, createdAt: "2026-08-27T00:00:00Z" };
+    const detection = detectMpesaMappingTemplate(["Ref", "Amount", "When", "Mobile", "Narration"], [template]);
+    expect(detection).toMatchObject({ template, confidence: 1, exact: false, mapping: { confirmationCode: 0, amount: 1, phone: 3, occurredAt: 2 } });
+    const partial = detectMpesaMappingTemplate(["Ref", "Amount", "Narration"], [{ ...template, headers: ["Ref", "Amount", "Narration"], headersSignature: mpesaStatementHeadersSignature(["Ref", "Amount", "Narration"]), mapping: { confirmationCode: 0, amount: 1, phone: -1, occurredAt: -1 } }]);
+    expect(partial?.confidence).toBe(1);
   });
 
   it("formats known timestamps in East Africa Time", () => {

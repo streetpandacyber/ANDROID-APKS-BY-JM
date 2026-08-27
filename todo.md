@@ -300,3 +300,6 @@
 - [x] Add a subtle live indicator animation to the lock-screen EAT clock
 - [x] Add saved custom CSV mapping templates with reuse and management actions
 - [x] Add deterministic tests for EAT date-range filtering and mapping templates
+- [x] Auto-detect the closest saved M-Pesa CSV mapping template from uploaded headers
+- [x] Apply an exact or high-confidence detected template while preserving manual fallback
+- [x] Add deterministic tests for saved-template detection and confidence behavior
