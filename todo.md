@@ -327,3 +327,14 @@
 - [x] Add standard web keyboard shortcuts for undo and redo
 - [x] Add floating mobile selection toolbar for touch formatting
 - [x] Add deterministic tests for Notebook undo/redo state transitions
+- [x] Redesign launch flow after demo into a four-module hub with POS PRO, NOTEBOOK, CALCULATOR, and RECEIPT BOOK
+- [x] Route each module headline to its own home dashboard
+- [x] Keep each module’s data and feature surfaces independent in the launch experience
+- [x] Place JM Majiwa developer credit, streetpandacyber@gmail.com support, and app details beneath the four headlines
+- [x] Add deterministic tests for module hub labels and routing boundaries
+
+- [x] Redesign post-demo launch as a four-module hub with POS PRO, NOTEBOOK, CALCULATOR, and RECEIPT BOOK headline cards
+- [x] Route each launch headline to its own module home dashboard without mixing module workflows
+- [x] Show JM Majiwa, support email, and app details beneath the launch hub
+- [x] Add deterministic tests for hub labels and dashboard-root routing
+- [x] Validate and checkpoint the four-module launch experience
