@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping, detectMpesaMappingTemplate, buildMpesaMappingPreview, isWithinDateRange, mpesaStatementHeadersSignature, parseNotebookMarkdown, formatNotebookInsertion, toggleNotebookFormatting } from "../lib/domain";
+import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping, detectMpesaMappingTemplate, buildMpesaMappingPreview, isWithinDateRange, mpesaStatementHeadersSignature, parseNotebookMarkdown, formatNotebookInsertion, toggleNotebookFormatting, moveNotebookHistory } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackup } from "../lib/backup-crypto";
 import { formatEAT } from "../lib/time";
@@ -232,6 +232,21 @@ describe("offline business rules", () => {
     expect(buildMpesaMappingPreview(["Ref", "Amount", "Mobile", "When"], [["ABC123", "500", "0712345678", "27 Aug 2026 09:15"]], mapping, { amount: "text" }, rules).find(row => row.field === "amount")?.dataStatus).toBe("invalid");
     expect(buildMpesaMappingPreview(["Ref", "Amount"], [["ABC123", "500"]], { confirmationCode: 0, amount: 1, phone: -1, occurredAt: -1 }, { amount: "1,250" }).find(row => row.field === "amount")?.sample).toBe("1,250");
     expect(buildMpesaMappingPreview(["Ref", "Amount"], [["ABC123", "500"]], { confirmationCode: 0, amount: 1, phone: -1, occurredAt: -1 }).find(row => row.field === "amount")?.sample).toBe("500");
+  });
+
+  it("moves Notebook edit history backward and forward with selection state", () => {
+    const current = { body: "hello **world**", selection: { start: 8, end: 13 } };
+    const previous = { body: "hello world", selection: { start: 6, end: 11 } };
+    const undone = moveNotebookHistory(current, [previous], [], "undo");
+    expect(undone.moved).toBe(true);
+    expect(undone.current).toEqual(previous);
+    expect(undone.undo).toEqual([]);
+    expect(undone.redo).toEqual([current]);
+    const redone = moveNotebookHistory(undone.current, undone.undo, undone.redo, "redo");
+    expect(redone.current).toEqual(current);
+    expect(redone.undo).toEqual([previous]);
+    expect(redone.redo).toEqual([]);
+    expect(moveNotebookHistory(current, [], [], "undo").moved).toBe(false);
   });
 
   it("toggles Notebook formatting off when the same control is used again", () => {

@@ -323,3 +323,7 @@
 - [x] Add web keyboard shortcuts for common Notebook formatting actions
 - [x] Add compact Markdown formatting help sheet or tooltip guide
 - [x] Add deterministic tests for formatting toggle behavior
+- [x] Add Notebook undo and redo history for editor changes
+- [x] Add standard web keyboard shortcuts for undo and redo
+- [x] Add floating mobile selection toolbar for touch formatting
+- [x] Add deterministic tests for Notebook undo/redo state transitions
