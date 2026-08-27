@@ -1,0 +1,11 @@
+const fs = require("node:fs");
+const path = "app/(tabs)/index.tsx";
+let source = fs.readFileSync(path, "utf8");
+const restockPattern = /if \(qty > 0\) setState\(s => \(\{ \.\.\.s, products: s\.products\.map\(x => x\.id === p\.id \? \{ \.\.\.x, overallStock: x\.overallStock \+ qty \} : x\), stockAdjustments: \[\{ id: freshId\("adjust"\), productId: p\.id, quantity: qty, type: "restock", createdAt: new Date\(\)\.toISOString\(\), createdBy: activeShift\?\.cashierName \|\| "Owner" \}, \.\.\.s\.stockAdjustments\], auditLog: \[\{ id: freshId\("audit"\), type: "stock", action: `RESTOCK \$\{p\.name\}`, cashierName: activeShift\?\.cashierName \|\| "Owner", productId: p\.id, quantity: qty, createdAt: new Date\(\)\.toISOString\(\) \}, \.\.\.s\.auditLog\] \}\)\);/;
+if (!restockPattern.test(source)) throw new Error("restock mutation not found");
+source = source.replace(restockPattern, "if (qty > 0) requestStockAdjustment(p.id, qty);");
+const salesPattern = /<Button label="Share \/ export" onPress=\{\(\) => exportSale\(item\)\} secondary small \/><\/View>/;
+if (!salesPattern.test(source)) throw new Error("sales action row not found");
+source = source.replace(salesPattern, "<Button label=\"Share / export\" onPress={() => exportSale(item)} secondary small /><Button label=\"Delete\" onPress={() => requestSaleDeletion(item.id)} secondary small /></View>");
+fs.writeFileSync(path, source);
+console.log("patched authorization action UI");

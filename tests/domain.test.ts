@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, calculateDashboardMetrics, calculateReceiptTotals, calculateSale, canAuthorizeAction, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup } from "../lib/domain";
+import { balanceStock, calculateDashboardMetrics, calculateReceiptTotals, calculateSale, canAuthorizeAction, canAuthorizeSensitiveAction, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 
 const product: Product = { ...initialState.products[0], overallStock: 10, soldStock: 3, lowStockThreshold: 7 };
@@ -52,6 +52,18 @@ describe("offline business rules", () => {
   it("accepts app, edit, or cashier PINs for protected actions", () => {
     expect(canAuthorizeAction("2468", "1357", "2468")).toBe(true);
     expect(canAuthorizeAction("9999", "1357", "2468", "1111")).toBe(false);
+  });
+
+  it("enforces the sensitive-action authorization matrix", () => {
+    const base = { inputPin: "2468", appPin: "1357", editPin: "2468", ownerPin: "1357", editPinEnabled: true };
+    expect(canAuthorizeSensitiveAction({ ...base, action: "stock-adjust" })).toBe(true);
+    expect(canAuthorizeSensitiveAction({ ...base, action: "report-change" })).toBe(true);
+    expect(canAuthorizeSensitiveAction({ ...base, action: "stock-adjust", inputPin: "9999" })).toBe(false);
+    expect(canAuthorizeSensitiveAction({ ...base, action: "refund", inputPin: "2468" })).toBe(false);
+    expect(canAuthorizeSensitiveAction({ ...base, action: "void", inputPin: "1357" })).toBe(true);
+    expect(canAuthorizeSensitiveAction({ ...base, action: "sale-delete", inputPin: "2468" })).toBe(false);
+    expect(canAuthorizeSensitiveAction({ ...base, action: "sale-delete", inputPin: "1357" })).toBe(true);
+    expect(canAuthorizeSensitiveAction({ ...base, action: "sale-edit", inputPin: "2468", editPinEnabled: false })).toBe(true);
   });
 
   it("matches products by barcode or SKU for offline scanning", () => {

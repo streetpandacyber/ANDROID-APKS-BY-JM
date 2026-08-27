@@ -7,7 +7,7 @@
 - [x] Define local-only data model for settings, app lock, cashiers, shifts, products, stock adjustments, carts, sales, notebooks, receipts, and backup metadata
 - [x] Implement local persistence with no cloud dependency
 - [x] Implement app-open PIN/password lock
-- [ ] Implement optional protection PIN for editing/deleting sales, stock, and reports
+- [x] Implement optional protection PIN for editing/deleting sales, stock, and reports
 - [x] Implement Home module hub for POS, Notebook, Calculator, and Receipt Book
 - [x] Implement POS cashier shift start with name, optional cashier PIN, and automatic timestamp
 - [x] Implement POS shift end logging and active shift badge
@@ -256,3 +256,11 @@
 - [x] Inspect the newest workflow logs after the dependency-installation fix
 - [x] Remove GitHub Actions Node.js 20 deprecation warnings
 - [x] Add EAS cli.appVersionSource configuration and push the fixes
+- [x] Check the newest GitHub Actions workflow and EAS APK artifact availability
+- [ ] Rate current app and document Google Play submission and monetization guidance
+- [ ] Audit the requested scope for skipped or incomplete app upgrades
+- [x] Complete sensitive-action authorization for sales edits/deletions, stock adjustments, and report changes
+- [x] Add deterministic tests for the complete sensitive-action authorization matrix
+
+- [x] Critical upgrade: extend sensitive-action authorization coverage for stock adjustments and sale deletion, with action-aware policy tests
+- [ ] Critical upgrade: protect any future report mutations with the action-aware authorization policy

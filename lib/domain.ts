@@ -2,6 +2,18 @@ import type { AppState, CartLine, Product, Sale, StockAdjustment } from "./types
 
 export type StockFilter = "all" | "low" | "inStock";
 export type DashboardMetrics = { netSales: number; itemsSold: number; transactions: number; lowStockCount: number };
+export type SensitiveAction = "sale-edit" | "sale-delete" | "stock-adjust" | "report-change" | "refund" | "void";
+
+type AuthorizationPolicyInput = {
+  action: SensitiveAction;
+  inputPin: string;
+  appPin?: string;
+  editPin?: string;
+  cashierEditPin?: string;
+  ownerPin?: string;
+  ownerCashierPin?: string;
+  editPinEnabled?: boolean;
+};
 
 export function calculateSale(cart: CartLine[], products: Product[], discount = 0, amountGiven = 0) {
   const subtotal = cart.reduce((sum, line) => sum + line.quantity * line.unitPrice, 0);
@@ -33,6 +45,14 @@ export function filterStock(products: Product[], adjustments: StockAdjustment[],
 export function calculateDashboardMetrics(sales: Sale[], products: Product[], day = "", dateKey: (value: string) => string = value => value.slice(0, 10)): DashboardMetrics { const todaySales = day ? sales.filter(sale => dateKey(sale.createdAt) === day) : sales; const activeSales = todaySales.filter(sale => sale.status !== "voided"); return { netSales: activeSales.reduce((sum, sale) => sum + sale.total - (sale.refund || 0), 0), itemsSold: activeSales.reduce((sum, sale) => sum + sale.items.reduce((items, item) => items + item.quantity, 0), 0), transactions: activeSales.length, lowStockCount: products.filter(isLowStock).length }; }
 
 export function canAuthorizeAction(inputPin: string, appPin?: string, editPin?: string, cashierPin?: string) { return Boolean(inputPin) && [appPin, editPin, cashierPin].some(pin => Boolean(pin) && pin === inputPin); }
+
+export function canAuthorizeSensitiveAction(input: AuthorizationPolicyInput) {
+  if (!input.inputPin) return false;
+  const ownerAuthorized = [input.ownerPin, input.ownerCashierPin].some(pin => Boolean(pin) && pin === input.inputPin);
+  if (input.action === "refund" || input.action === "void" || input.action === "sale-delete") return ownerAuthorized;
+  if (!input.editPinEnabled) return true;
+  return ownerAuthorized || [input.editPin, input.cashierEditPin].some(pin => Boolean(pin) && pin === input.inputPin);
+}
 
 export function findProductByBarcode(products: Product[], code: string) { const normalized = code.trim(); if (!normalized) return undefined; return products.find(product => product.barcode?.trim() === normalized || product.sku.trim() === normalized); }
 
