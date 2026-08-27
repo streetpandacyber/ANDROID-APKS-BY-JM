@@ -272,3 +272,10 @@
 - [x] Added deterministic report snapshot tests and validated local CSV export behavior
 - [x] Next upgrade: add product sorting, duplicate barcode detection, stock-movement detail, and expanded sale details
 - [x] Add deterministic tests for product sorting and duplicate barcode safeguards
+- [x] Next upgrade: add password-protected local backup export and a visible backup-before-restore safeguard
+- [x] Add deterministic backup encryption, password validation, and restore-guard tests
+- [x] Assess optional M-Pesa STK Push and transaction reconciliation as an online add-on without weakening offline operation
+- [ ] If approved, design a secure backend-mediated M-Pesa integration with pending payments, callbacks, idempotency, and reconciliation
+- [x] Implement Option A: strict offline manual M-Pesa recording with payment and reconciliation fields
+- [x] Update the local sales schema and compatibility normalization for manual M-Pesa records
+- [x] Add deterministic tests for manual M-Pesa status and reconciliation rules

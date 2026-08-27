@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts } from "../lib/domain";
+import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
+import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackup } from "../lib/backup-crypto";
 
 const product: Product = { ...initialState.products[0], overallStock: 10, soldStock: 3, lowStockThreshold: 7 };
 
@@ -119,6 +120,30 @@ describe("offline business rules", () => {
     expect(hasDuplicateBarcode([first, second], "616000000001")).toBe(true);
     expect(hasDuplicateBarcode([first, second], "616000000001", "first")).toBe(false);
     expect(hasDuplicateBarcode([first, second], "")).toBe(false);
+  });
+
+  it("encrypts and validates password-protected backups", () => {
+    const payload = { version: 1, state: initialState };
+    const encrypted = encryptBackupPayload(payload, "correct horse", "2026-08-27T00:00:00.000Z");
+    expect(isEncryptedBackup(encrypted)).toBe(true);
+    expect(decryptBackupPayload(encrypted, "correct horse")).toEqual(payload);
+    expect(() => decryptBackupPayload(encrypted, "wrong password")).toThrow("Incorrect backup password");
+    expect(() => decryptBackupPayload(encrypted.slice(0, -4), "correct horse")).toThrow("Incorrect backup password");
+    expect(() => encryptBackupPayload(payload, "short")).toThrow("at least 8 characters");
+  });
+
+  it("normalizes legacy sales and enforces manual M-Pesa reconciliation rules", () => {
+    const legacy = normalizeSale({ id: "sale-1", shiftId: "shift-1", cashierName: "Amina", createdAt: "2026-08-27T08:00:00.000Z", items: [], subtotal: 100, discount: 0, refund: 0, total: 100, amountGiven: 100, change: 0 });
+    expect(legacy.paymentMethod).toBe("cash");
+    expect(legacy.reconciliationStatus).toBeUndefined();
+    const mpesa = normalizeSale({ ...legacy, id: "sale-2", paymentMethod: "mpesa_manual", mpesaReceiptNumber: " qwe123 ", reconciliationStatus: undefined });
+    expect(mpesa.reconciliationStatus).toBe("unreconciled");
+    expect(hasDuplicateMpesaReceipt([mpesa], "QWE123")).toBe(true);
+    expect(hasDuplicateMpesaReceipt([mpesa], "QWE123", "sale-2")).toBe(false);
+    const reconciled = reconcileMpesaSale(mpesa, "Amina", "2026-08-27T09:00:00.000Z");
+    expect(reconciled.reconciliationStatus).toBe("reconciled");
+    expect(reconciled.reconciledBy).toBe("Amina");
+    expect(() => reconcileMpesaSale(legacy, "Amina", "2026-08-27T09:00:00.000Z")).toThrow("manual M-Pesa");
   });
 
   it("accepts only compatible backup envelopes", () => {

@@ -70,6 +70,10 @@ export function hasDuplicateBarcode(products: Product[], barcode: string, exclud
 
 export function findProductByBarcode(products: Product[], code: string) { const normalized = code.trim(); if (!normalized) return undefined; return products.find(product => product.barcode?.trim() === normalized || product.sku.trim() === normalized); }
 
+export function normalizeSale(sale: Sale): Sale { const paymentMethod = sale.paymentMethod || "cash"; return { ...sale, paymentMethod, reconciliationStatus: paymentMethod === "mpesa_manual" ? sale.reconciliationStatus || "unreconciled" : undefined }; }
+export function hasDuplicateMpesaReceipt(sales: Sale[], receiptNumber: string, excludeSaleId?: string) { const normalized = receiptNumber.trim().toUpperCase(); return Boolean(normalized) && sales.some(sale => sale.id !== excludeSaleId && sale.paymentMethod === "mpesa_manual" && sale.mpesaReceiptNumber?.trim().toUpperCase() === normalized); }
+export function reconcileMpesaSale(sale: Sale, reconciledBy: string, reconciledAt: string): Sale { if (sale.paymentMethod !== "mpesa_manual") throw new Error("Only manual M-Pesa sales can be reconciled"); return { ...sale, reconciliationStatus: "reconciled", reconciledBy, reconciledAt }; }
+
 export function isValidBackup(value: unknown): value is { version: number; state: AppState } {
   if (!value || typeof value !== "object") return false;
   const candidate = value as { version?: unknown; state?: AppState };
