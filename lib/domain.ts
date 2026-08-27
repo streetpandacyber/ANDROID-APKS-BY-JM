@@ -64,6 +64,10 @@ export function canAuthorizeSensitiveAction(input: AuthorizationPolicyInput) {
 
 export function filterReceipts(receipts: ReceiptEntry[], search = "", date = "", amountFilter: "all" | "under1000" | "over1000" = "all", sort: "newest" | "oldest" | "amountHigh" | "amountLow" = "newest", dateKey: (value: string) => string = value => value.slice(0, 10)) { const query = search.trim().toLowerCase(); return receipts.filter(receipt => { const haystack = `${receipt.customerName} ${receipt.receiptNumber} ${receipt.title || ""} ${receipt.lines.map(line => line.description).join(" ")}`.toLowerCase(); const amount = receipt.thumbnail?.total ?? receipt.total; const amountMatch = amountFilter === "all" || (amountFilter === "under1000" ? amount < 1000 : amount >= 1000); return haystack.includes(query) && (!date || dateKey(receipt.date) === date) && amountMatch; }).sort((a, b) => sort === "oldest" ? a.date.localeCompare(b.date) : sort === "amountHigh" ? (b.thumbnail?.total ?? b.total) - (a.thumbnail?.total ?? a.total) : sort === "amountLow" ? (a.thumbnail?.total ?? a.total) - (b.thumbnail?.total ?? b.total) : b.date.localeCompare(a.date)); }
 
+export type ProductSort = "name" | "stockLow" | "stockHigh" | "priceHigh";
+export function sortProducts(products: Product[], sort: ProductSort = "name") { return [...products].sort((a, b) => sort === "stockLow" ? balanceStock(a) - balanceStock(b) : sort === "stockHigh" ? balanceStock(b) - balanceStock(a) : sort === "priceHigh" ? b.price - a.price : a.name.localeCompare(b.name)); }
+export function hasDuplicateBarcode(products: Product[], barcode: string, excludeId?: string) { const normalized = barcode.trim(); return Boolean(normalized) && products.some(product => product.id !== excludeId && product.barcode?.trim() === normalized); }
+
 export function findProductByBarcode(products: Product[], code: string) { const normalized = code.trim(); if (!normalized) return undefined; return products.find(product => product.barcode?.trim() === normalized || product.sku.trim() === normalized); }
 
 export function isValidBackup(value: unknown): value is { version: number; state: AppState } {

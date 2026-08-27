@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup } from "../lib/domain";
+import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 
 const product: Product = { ...initialState.products[0], overallStock: 10, soldStock: 3, lowStockThreshold: 7 };
@@ -109,6 +109,16 @@ describe("offline business rules", () => {
     expect(buildReportSnapshot("product", sales, products, [], shifts, "2026-08-20", "2026-08-21").rows[0].label).toBe("Rice");
     expect(buildReportSnapshot("stock", sales, products, [], shifts, "2026-08-20", "2026-08-21").rows[0].detail).toContain("balance");
     expect(buildReportSnapshot("shift", sales, products, [], shifts, "2026-08-20", "2026-08-21").rows[0].label).toBe("Morning");
+  });
+
+  it("sorts products and rejects duplicate barcodes", () => {
+    const first = { ...initialState.products[0], id: "first", barcode: "616000000001" };
+    const second = { ...initialState.products[1], id: "second", barcode: "616000000002", overallStock: 4, soldStock: 3, price: 900 };
+    expect(sortProducts([first, second], "stockLow").map(item => item.id)).toEqual(["second", "first"]);
+    expect(sortProducts([first, second], "priceHigh")[0].id).toBe("second");
+    expect(hasDuplicateBarcode([first, second], "616000000001")).toBe(true);
+    expect(hasDuplicateBarcode([first, second], "616000000001", "first")).toBe(false);
+    expect(hasDuplicateBarcode([first, second], "")).toBe(false);
   });
 
   it("accepts only compatible backup envelopes", () => {

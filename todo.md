@@ -82,9 +82,9 @@
 - [x] Add note word/character counts, created/edited timestamps, and quick-note floating action
 - [x] Expand POS internal tabs to Dashboard, Cashier, Products, Sales, Stock, and Reports
 - [x] Add cashier shift name, shift label, lined-paper start form, recent items, end-shift confirmation, and shift summary
-- [ ] Add product cost/barcode/image/notes fields plus list sorting and stock filters
+- [x] Add product cost/barcode/image/notes fields plus list sorting and stock filters
 - [x] Add POS cart internal calculator with payment states, quick cash, hold sale, print receipt, and clear confirmation
-- [ ] Add sale detail expansion, date/cashier filters, stock dashboard totals, progress bars, alerts, and movement history
+- [x] Add sale detail expansion, date/cashier filters, stock dashboard totals, progress bars, alerts, and movement history
 - [x] Add daily, cashier, stock, product, and shift report types with generated metadata
 
 - [x] Audit and remove any runtime API/cloud dependency from the app flows
@@ -233,7 +233,7 @@
 - [x] Escape user-entered receipt HTML and validate receipt data before rendering
 - [x] Improve persistence reliability with debounced atomic saves and failure recovery
 - [x] Remove unused native audio/video plugins and verify offline Android permissions
-- [ ] Add barcode scanning, product sorting, stock movement details, and sale-detail expansion
+- [x] Add barcode scanning, product sorting, stock movement details, and sale-detail expansion
 - [x] Add offline barcode scanning and barcode product lookup
 - [x] Add richer report presets and local report exports
 - [x] Prepare signed APK build configuration for physical-device testing
@@ -270,3 +270,5 @@
 - [x] Add deterministic shift summary tests and validate local cashier flows
 - [x] Expanded Reports into daily, cashier, product, stock, and shift views with metadata, comparison totals, and inclusive EAT date boundaries
 - [x] Added deterministic report snapshot tests and validated local CSV export behavior
+- [x] Next upgrade: add product sorting, duplicate barcode detection, stock-movement detail, and expanded sale details
+- [x] Add deterministic tests for product sorting and duplicate barcode safeguards
