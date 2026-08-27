@@ -279,3 +279,7 @@
 - [x] Implement Option A: strict offline manual M-Pesa recording with payment and reconciliation fields
 - [x] Update the local sales schema and compatibility normalization for manual M-Pesa records
 - [x] Add deterministic tests for manual M-Pesa status and reconciliation rules
+- [x] Extract the monolithic checkout screen into smaller maintainable modules
+- [x] Add an unreconciled M-Pesa badge or indicator to the POS dashboard
+- [x] Add a dedicated unreconciled M-Pesa report and filter
+- [x] Add deterministic tests for unreconciled M-Pesa counts, filters, and report totals

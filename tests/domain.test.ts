@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale } from "../lib/domain";
+import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackup } from "../lib/backup-crypto";
 
@@ -144,6 +144,23 @@ describe("offline business rules", () => {
     expect(reconciled.reconciliationStatus).toBe("reconciled");
     expect(reconciled.reconciledBy).toBe("Amina");
     expect(() => reconcileMpesaSale(legacy, "Amina", "2026-08-27T09:00:00.000Z")).toThrow("manual M-Pesa");
+  });
+
+  it("filters unreconciled M-Pesa sales and builds their dedicated report", () => {
+    const base = { shiftId: "shift-1", cashierName: "Amina", items: [{ productId: "bread", name: "Bread", quantity: 2, quantityType: "unit" as const, unitPrice: 60, lineTotal: 120 }], subtotal: 120, discount: 0, refund: 0, total: 120, amountGiven: 120, change: 0, paymentMethod: "mpesa_manual" as const, mpesaReceiptNumber: "ABC123" };
+    const sales = [
+      { ...base, id: "mpesa-open", createdAt: "2026-08-27T08:00:00Z", reconciliationStatus: "unreconciled" as const },
+      { ...base, id: "mpesa-done", createdAt: "2026-08-27T09:00:00Z", mpesaReceiptNumber: "DONE123", reconciliationStatus: "reconciled" as const },
+      { ...base, id: "cash", createdAt: "2026-08-27T10:00:00Z", paymentMethod: "cash" as const, mpesaReceiptNumber: undefined, reconciliationStatus: undefined },
+      { ...base, id: "voided", createdAt: "2026-08-27T11:00:00Z", status: "voided" as const, reconciliationStatus: "unreconciled" as const },
+    ];
+    expect(filterUnreconciledMpesa(sales, "All", "2026-08-27", "2026-08-27")).toHaveLength(1);
+    expect(filterUnreconciledMpesa(sales, "Brian")).toHaveLength(0);
+    const report = buildReportSnapshot("mpesa-unreconciled", sales, [product], [], [], "2026-08-27", "2026-08-27");
+    expect(report.title).toBe("Unreconciled M-Pesa report");
+    expect(report.transactions).toBe(1);
+    expect(report.netSales).toBe(120);
+    expect(report.rows[0]).toMatchObject({ label: "ABC123", value: 120, count: 1 });
   });
 
   it("accepts only compatible backup envelopes", () => {
