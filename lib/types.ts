@@ -116,6 +116,13 @@ export type ReceiptEntry = {
   deletedAt?: string;
 };
 
+export type MpesaValidationSettings = {
+  requirePositiveAmount: boolean;
+  requirePhone: boolean;
+  requireOccurredAt: boolean;
+  phoneMinDigits: number;
+};
+
 export type MpesaMappingTemplate = {
   id: string;
   name: string;
@@ -148,6 +155,7 @@ export type AppSettings = {
   latestKnownVersion?: string;
   latestKnownReleaseDate?: string;
   mpesaMappingTemplates?: MpesaMappingTemplate[];
+  mpesaValidation?: MpesaValidationSettings;
 };
 
 export type FeedbackEntry = {
@@ -176,7 +184,7 @@ export type AppState = {
 
 export const initialState: AppState = {
   schemaVersion: 2,
-  settings: { currency: "KSH", decimalPlaces: 2, theme: "dark", pinEnabled: true, editPinEnabled: false, receiptTemplate: "classic", thermalWidth: "80mm", businessName: "ShopMate Offline", receiptFooter: "Thank you for shopping with us.", developerName: "JM Majiwa", autoBalanceParentheses: false, latestKnownVersion: "1.0.0", latestKnownReleaseDate: "26 August 2026", mpesaMappingTemplates: [] },
+  settings: { currency: "KSH", decimalPlaces: 2, theme: "dark", pinEnabled: true, editPinEnabled: false, receiptTemplate: "classic", thermalWidth: "80mm", businessName: "ShopMate Offline", receiptFooter: "Thank you for shopping with us.", developerName: "JM Majiwa", autoBalanceParentheses: false, latestKnownVersion: "1.0.0", latestKnownReleaseDate: "26 August 2026", mpesaMappingTemplates: [], mpesaValidation: { requirePositiveAmount: true, requirePhone: false, requireOccurredAt: false, phoneMinDigits: 9 } },
   products: [
     { id: "bread", name: "Bread", sku: "BRD-001", category: "Bakery", price: 60, quantityType: "unit", overallStock: 34, soldStock: 0, taxRate: 0, lowStockThreshold: 8 },
     { id: "milk", name: "Fresh Milk", sku: "MLK-002", category: "Dairy", price: 480, quantityType: "liter", overallStock: 12, soldStock: 0, taxRate: 0, lowStockThreshold: 3 },

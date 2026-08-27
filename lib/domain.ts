@@ -1,5 +1,7 @@
 import type { AppState, AuditEntry, CartLine, MpesaMappingTemplate, Product, ReceiptEntry, Sale, Shift, StockAdjustment } from "./types";
 
+import type { MpesaValidationSettings } from "@/lib/types";
+
 export type StockFilter = "all" | "low" | "inStock";
 export type DashboardMetrics = { netSales: number; itemsSold: number; transactions: number; lowStockCount: number };
 export type SensitiveAction = "sale-edit" | "sale-delete" | "stock-adjust" | "report-change" | "mpesa-reconcile" | "refund" | "void";
@@ -69,6 +71,8 @@ export function filterReceipts(receipts: ReceiptEntry[], search = "", date = "",
 export type ProductSort = "name" | "stockLow" | "stockHigh" | "priceHigh";
 export function sortProducts(products: Product[], sort: ProductSort = "name") { return [...products].sort((a, b) => sort === "stockLow" ? balanceStock(a) - balanceStock(b) : sort === "stockHigh" ? balanceStock(b) - balanceStock(a) : sort === "priceHigh" ? b.price - a.price : a.name.localeCompare(b.name)); }
 export function hasDuplicateBarcode(products: Product[], barcode: string, excludeId?: string) { const normalized = barcode.trim(); return Boolean(normalized) && products.some(product => product.id !== excludeId && product.barcode?.trim() === normalized); }
+export type NotebookMarkdownBlock = { kind: "text" | "heading" | "bullet" | "numbered" | "task" | "divider" | "spacer"; value: string; level?: 1 | 2 | 3; marker?: string };
+export function parseNotebookMarkdown(body: string): NotebookMarkdownBlock[] { return body.split(/\r?\n/).map(line => { const trimmed = line.trim(); if (!trimmed) return { kind: "spacer", value: "" } as const; if (/^#{1,3}\s/.test(trimmed)) { const level = Math.min(3, trimmed.match(/^#+/)?.[0].length || 1) as 1 | 2 | 3; return { kind: "heading", level, value: trimmed.replace(/^#{1,3}\s+/, "") } as const; } if (/^---+$/.test(trimmed)) return { kind: "divider", value: "" } as const; if (/^(?:[-*•])\s+/.test(trimmed)) return { kind: "bullet", marker: "•", value: trimmed.replace(/^(?:[-*•])\s+/, "") } as const; if (/^\d+\.\s+/.test(trimmed)) { const marker = trimmed.match(/^\d+/)?.[0] || "1"; return { kind: "numbered", marker: `${marker}.`, value: trimmed.replace(/^\d+\.\s+/, "") } as const; } if (/^☐\s*/.test(trimmed)) return { kind: "task", marker: "□", value: trimmed.replace(/^☐\s*/, "") } as const; return { kind: "text", value: line } as const; }); }
 
 export function findProductByBarcode(products: Product[], code: string) { const normalized = code.trim(); if (!normalized) return undefined; return products.find(product => product.barcode?.trim() === normalized || product.sku.trim() === normalized); }
 
@@ -102,6 +106,9 @@ export type MpesaStatementRow = { rowNumber: number; confirmationCode: string; a
 export type MpesaStatementMatch = { row: MpesaStatementRow; sale: Sale };
 export type MpesaStatementParseResult = { rows: MpesaStatementRow[]; invalidRows: number[] };
 export type MpesaStatementColumnMapping = { confirmationCode: number; amount: number; phone: number; occurredAt: number };
+export const DEFAULT_MPESA_VALIDATION: MpesaValidationSettings = { requirePositiveAmount: true, requirePhone: false, requireOccurredAt: false, phoneMinDigits: 9 };
+function resolveMpesaValidation(rules?: Partial<MpesaValidationSettings>): MpesaValidationSettings { return { ...DEFAULT_MPESA_VALIDATION, ...rules, phoneMinDigits: Math.max(7, Math.round(Number(rules?.phoneMinDigits ?? DEFAULT_MPESA_VALIDATION.phoneMinDigits))) }; }
+function isValidStatementDate(value: string) { const normalized = value.trim(); return Boolean(normalized) && !Number.isNaN(Date.parse(normalized)); }
 export type MpesaStatementCsvPreview = { headers: string[]; rows: string[][] };
 export function inspectMpesaStatementCsv(csv: string): MpesaStatementCsvPreview { const lines = csv.replace(/^\uFEFF/, "").split(/\r?\n/).filter(line => line.trim()); return { headers: lines.length ? parseCsvLine(lines[0]) : [], rows: lines.slice(1, 4).map(parseCsvLine) }; }
 function findStatementColumn(headers: string[], candidates: string[]) { return headers.map(normalizeCsvHeader).findIndex(header => candidates.some(candidate => header.includes(candidate))); }
@@ -110,13 +117,15 @@ export type MpesaStatementMatchResult = { matches: MpesaStatementMatch[]; unmatc
 function normalizeCsvHeader(value: string) { return value.replace(/^\uFEFF/, "").trim().toLowerCase().replace(/[^a-z0-9]/g, ""); }
 export function mpesaStatementHeadersSignature(headers: string[]) { return headers.map(normalizeCsvHeader).join("|"); }
 export type MpesaMappingPreviewRow = { field: keyof MpesaStatementColumnMapping; label: string; columnIndex: number; columnName: string; sample: string; required: boolean; status: "matched" | "optional" | "missing"; dataStatus: "valid" | "invalid" | "empty" };
-export function buildMpesaMappingPreview(headers: string[], rows: string[][], mapping: MpesaStatementColumnMapping, sampleOverrides: Partial<Record<keyof MpesaStatementColumnMapping, string>> = {}): MpesaMappingPreviewRow[] {
-  const fields: [keyof MpesaStatementColumnMapping, string, boolean][] = [["confirmationCode", "Confirmation code", true], ["amount", "Amount", true], ["phone", "Phone reference", false], ["occurredAt", "Statement date/time", false]];
+export function buildMpesaMappingPreview(headers: string[], rows: string[][], mapping: MpesaStatementColumnMapping, sampleOverrides: Partial<Record<keyof MpesaStatementColumnMapping, string>> = {}, rules?: Partial<MpesaValidationSettings>): MpesaMappingPreviewRow[] {
+  const validation = resolveMpesaValidation(rules);
+  const fields: [keyof MpesaStatementColumnMapping, string, boolean][] = [["confirmationCode", "Confirmation code", true], ["amount", "Amount", true], ["phone", "Phone reference", validation.requirePhone], ["occurredAt", "Statement date/time", validation.requireOccurredAt]];
   return fields.map(([field, label, required]) => {
     const columnIndex = mapping[field];
     const valid = columnIndex >= 0 && columnIndex < headers.length;
     const sample = valid ? (sampleOverrides[field] ?? rows[0]?.[columnIndex] ?? "") : (sampleOverrides[field] ?? "");
-    const dataStatus = !valid || !sample.trim() ? "empty" : field === "confirmationCode" ? "valid" : field === "amount" ? (parseStatementAmount(sample) !== undefined && parseStatementAmount(sample)! > 0 ? "valid" : "invalid") : field === "phone" ? (normalizePhone(sample).length >= 9 ? "valid" : "invalid") : "valid";
+    const parsedAmount = field === "amount" ? parseStatementAmount(sample) : undefined;
+    const dataStatus = !valid || !sample.trim() ? "empty" : field === "confirmationCode" ? "valid" : field === "amount" ? (parsedAmount !== undefined && (!validation.requirePositiveAmount || parsedAmount > 0) ? "valid" : "invalid") : field === "phone" ? (normalizePhone(sample).length >= validation.phoneMinDigits ? "valid" : "invalid") : field === "occurredAt" ? (isValidStatementDate(sample) ? "valid" : "invalid") : "valid";
     return { field, label, columnIndex, columnName: valid ? headers[columnIndex] : "Not used", sample: valid ? sample : "—", required, status: valid ? "matched" : required ? "missing" : "optional", dataStatus };
   });
 }
@@ -149,7 +158,8 @@ function parseCsvLine(line: string) { const cells: string[] = []; let cell = "";
 function parseStatementAmount(value: string) { const normalized = value.replace(/\s/g, "").replace(/[^0-9.\-()]/g, ""); if (!normalized) return undefined; const parenthesized = normalized.startsWith("(") && normalized.endsWith(")"); const numeric = Number(normalized.replace(/[()]/g, "")); if (!Number.isFinite(numeric)) return undefined; return parenthesized ? -numeric : numeric; }
 function normalizeReceiptCode(value: string) { return value.trim().toUpperCase().replace(/\s+/g, ""); }
 function normalizePhone(value?: string) { if (!value) return ""; return value.replace(/\D/g, "").replace(/^254/, "0"); }
-export function parseMpesaStatementCsv(csv: string, mapping?: MpesaStatementColumnMapping): MpesaStatementParseResult {
+export function parseMpesaStatementCsv(csv: string, mapping?: MpesaStatementColumnMapping, rules?: Partial<MpesaValidationSettings>): MpesaStatementParseResult {
+  const validation = resolveMpesaValidation(rules);
   const lines = csv.replace(/^\uFEFF/, "").split(/\r?\n/).filter(line => line.trim());
   if (lines.length < 2) return { rows: [], invalidRows: [] };
   const headers = parseCsvLine(lines[0]);
@@ -163,8 +173,13 @@ export function parseMpesaStatementCsv(csv: string, mapping?: MpesaStatementColu
     const cells = parseCsvLine(line);
     const confirmationCode = normalizeReceiptCode(cells[codeIndex] || "");
     const amount = parseStatementAmount(cells[amountIndex] || "");
-    if (!confirmationCode || amount === undefined || amount <= 0) { invalidRows.push(index + 2); return; }
-    rows.push({ rowNumber: index + 2, confirmationCode, amount: Math.round(amount * 100) / 100, phone: selected.phone >= 0 ? cells[selected.phone]?.trim() || undefined : undefined, occurredAt: selected.occurredAt >= 0 ? cells[selected.occurredAt]?.trim() || undefined : undefined });
+    const phone = selected.phone >= 0 ? cells[selected.phone]?.trim() || undefined : undefined;
+    const occurredAt = selected.occurredAt >= 0 ? cells[selected.occurredAt]?.trim() || undefined : undefined;
+    const amountValid = amount !== undefined && (!validation.requirePositiveAmount || amount > 0);
+    const phoneValid = !validation.requirePhone || normalizePhone(phone).length >= validation.phoneMinDigits;
+    const occurredAtValid = !validation.requireOccurredAt || isValidStatementDate(occurredAt || "");
+    if (!confirmationCode || !amountValid || !phoneValid || !occurredAtValid) { invalidRows.push(index + 2); return; }
+    rows.push({ rowNumber: index + 2, confirmationCode, amount: Math.round((amount || 0) * 100) / 100, phone, occurredAt });
   });
   return { rows, invalidRows };
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping, detectMpesaMappingTemplate, buildMpesaMappingPreview, isWithinDateRange, mpesaStatementHeadersSignature } from "../lib/domain";
+import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping, detectMpesaMappingTemplate, buildMpesaMappingPreview, isWithinDateRange, mpesaStatementHeadersSignature, parseNotebookMarkdown } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackup } from "../lib/backup-crypto";
 import { formatEAT } from "../lib/time";
@@ -222,6 +222,20 @@ describe("offline business rules", () => {
     const mapping = { confirmationCode: 0, amount: 1, phone: -1, occurredAt: -1 };
     expect(buildMpesaMappingPreview(["Reference", "Amount"], [["ABC123", "text"]], mapping).find(row => row.field === "amount")?.dataStatus).toBe("invalid");
     expect(buildMpesaMappingPreview(["Reference", "Amount"], [["ABC123", "500"]], mapping, { amount: "KES 1,250.00" }).find(row => row.field === "amount")?.dataStatus).toBe("valid");
+  });
+
+  it("applies configurable M-Pesa validation rules and restores original samples", () => {
+    const csv = "Ref,Amount,Mobile,When\nABC123,500,0712345678,27 Aug 2026 09:15\nBAD,500,not-a-phone,not-a-date";
+    const mapping = { confirmationCode: 0, amount: 1, phone: 2, occurredAt: 3 };
+    const rules = { requirePositiveAmount: true, requirePhone: true, requireOccurredAt: true, phoneMinDigits: 9 };
+    expect(parseMpesaStatementCsv(csv, mapping, rules)).toMatchObject({ rows: [{ confirmationCode: "ABC123", amount: 500 }], invalidRows: [3] });
+    expect(buildMpesaMappingPreview(["Ref", "Amount", "Mobile", "When"], [["ABC123", "500", "0712345678", "27 Aug 2026 09:15"]], mapping, { amount: "text" }, rules).find(row => row.field === "amount")?.dataStatus).toBe("invalid");
+    expect(buildMpesaMappingPreview(["Ref", "Amount"], [["ABC123", "500"]], { confirmationCode: 0, amount: 1, phone: -1, occurredAt: -1 }, { amount: "1,250" }).find(row => row.field === "amount")?.sample).toBe("1,250");
+    expect(buildMpesaMappingPreview(["Ref", "Amount"], [["ABC123", "500"]], { confirmationCode: 0, amount: 1, phone: -1, occurredAt: -1 }).find(row => row.field === "amount")?.sample).toBe("500");
+  });
+
+  it("parses Notebook Markdown-style blocks deterministically", () => {
+    expect(parseNotebookMarkdown("# Title\n\n**bold**\n• Task\n2. Next\n☐ Done\n---")).toEqual([{ kind: "heading", level: 1, value: "Title" }, { kind: "spacer", value: "" }, { kind: "text", value: "**bold**" }, { kind: "bullet", marker: "•", value: "Task" }, { kind: "numbered", marker: "2.", value: "Next" }, { kind: "task", marker: "□", value: "Done" }, { kind: "divider", value: "" }]);
   });
 
   it("formats known timestamps in East Africa Time", () => {

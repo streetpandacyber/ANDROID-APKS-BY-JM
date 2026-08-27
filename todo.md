@@ -311,3 +311,7 @@
 - [x] Add Reset Mapping control to clear all selected columns
 - [x] Allow editing mapping-preview sample values for format testing
 - [x] Add deterministic tests for mapping validation and reset/sample-preview behavior
+- [x] Add live visual Markdown-style Notebook preview rendering
+- [x] Add configurable validation rules for local M-Pesa statement formats
+- [x] Add mapping-preview action to restore original CSV sample values
+- [x] Add deterministic tests for Markdown rendering, validation rules, and sample restoration
