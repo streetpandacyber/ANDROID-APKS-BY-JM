@@ -109,6 +109,16 @@ export function suggestMpesaStatementMapping(headers: string[]): MpesaStatementC
 export type MpesaStatementMatchResult = { matches: MpesaStatementMatch[]; unmatched: MpesaStatementRow[]; duplicateRows: MpesaStatementRow[] };
 function normalizeCsvHeader(value: string) { return value.replace(/^\uFEFF/, "").trim().toLowerCase().replace(/[^a-z0-9]/g, ""); }
 export function mpesaStatementHeadersSignature(headers: string[]) { return headers.map(normalizeCsvHeader).join("|"); }
+export type MpesaMappingPreviewRow = { field: keyof MpesaStatementColumnMapping; label: string; columnIndex: number; columnName: string; sample: string; required: boolean; status: "matched" | "optional" | "missing" };
+export function buildMpesaMappingPreview(headers: string[], rows: string[][], mapping: MpesaStatementColumnMapping): MpesaMappingPreviewRow[] {
+  const fields: [keyof MpesaStatementColumnMapping, string, boolean][] = [["confirmationCode", "Confirmation code", true], ["amount", "Amount", true], ["phone", "Phone reference", false], ["occurredAt", "Statement date/time", false]];
+  return fields.map(([field, label, required]) => {
+    const columnIndex = mapping[field];
+    const valid = columnIndex >= 0 && columnIndex < headers.length;
+    return { field, label, columnIndex, columnName: valid ? headers[columnIndex] : "Not used", sample: valid ? (rows[0]?.[columnIndex] || "No sample") : "—", required, status: valid ? "matched" : required ? "missing" : "optional" };
+  });
+}
+
 export type MpesaMappingTemplateDetection = { template: MpesaMappingTemplate; mapping: MpesaStatementColumnMapping; confidence: number; exact: boolean };
 export function detectMpesaMappingTemplate(headers: string[], templates: MpesaMappingTemplate[]): MpesaMappingTemplateDetection | undefined {
   const normalizedHeaders = headers.map(normalizeCsvHeader);

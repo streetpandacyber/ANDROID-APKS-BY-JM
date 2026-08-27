@@ -303,3 +303,6 @@
 - [x] Auto-detect the closest saved M-Pesa CSV mapping template from uploaded headers
 - [x] Apply an exact or high-confidence detected template while preserving manual fallback
 - [x] Add deterministic tests for saved-template detection and confidence behavior
+- [x] Add side-by-side preview of detected M-Pesa fields, CSV columns, and sample values
+- [x] Show clear matched, optional, and missing mapping states before reconciliation
+- [x] Add deterministic tests for mapping preview derivation

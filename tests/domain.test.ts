@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping, detectMpesaMappingTemplate, isWithinDateRange, mpesaStatementHeadersSignature } from "../lib/domain";
+import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping, detectMpesaMappingTemplate, buildMpesaMappingPreview, isWithinDateRange, mpesaStatementHeadersSignature } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackup } from "../lib/backup-crypto";
 import { formatEAT } from "../lib/time";
@@ -211,6 +211,11 @@ describe("offline business rules", () => {
     expect(detection).toMatchObject({ template, confidence: 1, exact: false, mapping: { confirmationCode: 0, amount: 1, phone: 3, occurredAt: 2 } });
     const partial = detectMpesaMappingTemplate(["Ref", "Amount", "Narration"], [{ ...template, headers: ["Ref", "Amount", "Narration"], headersSignature: mpesaStatementHeadersSignature(["Ref", "Amount", "Narration"]), mapping: { confirmationCode: 0, amount: 1, phone: -1, occurredAt: -1 } }]);
     expect(partial?.confidence).toBe(1);
+  });
+
+  it("builds a side-by-side mapping preview with field status and sample values", () => {
+    const preview = buildMpesaMappingPreview(["Reference", "Amount", "Narration"], [["ABC123", "500", "Payment"]], { confirmationCode: 0, amount: 1, phone: -1, occurredAt: 4 });
+    expect(preview).toMatchObject([{ label: "Confirmation code", columnName: "Reference", sample: "ABC123", status: "matched", required: true }, { label: "Amount", columnName: "Amount", sample: "500", status: "matched", required: true }, { label: "Phone reference", columnName: "Not used", status: "optional", required: false }, { label: "Statement date/time", columnName: "Not used", status: "optional", required: false }]);
   });
 
   it("formats known timestamps in East Africa Time", () => {
