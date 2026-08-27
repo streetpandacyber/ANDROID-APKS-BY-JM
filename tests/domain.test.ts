@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa } from "../lib/domain";
+import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackup } from "../lib/backup-crypto";
 
@@ -164,6 +164,28 @@ describe("offline business rules", () => {
     expect(report.transactions).toBe(1);
     expect(report.netSales).toBe(120);
     expect(report.rows[0]).toMatchObject({ label: "ABC123", value: 120, count: 1 });
+  });
+
+  it("filters reconciliation history by cashier, date, and search text and builds export rows", () => {
+    const sales = [{ id: "sale-1", shiftId: "shift-1", cashierName: "Amina", createdAt: "2026-08-27T08:00:00Z", items: [], subtotal: 500, discount: 0, refund: 0, total: 500, amountGiven: 500, change: 0, paymentMethod: "mpesa_manual" as const, mpesaReceiptNumber: "ABC123", mpesaPhone: "0712345678", reconciliationStatus: "reconciled" as const }];
+    const entries = [{ id: "audit-1", type: "reconciliation" as const, action: "RECONCILE M-PESA ABC123", saleId: "sale-1", cashierName: "Amina", authorizedBy: "Owner", createdAt: "2026-08-27T09:00:00Z" }, { id: "audit-2", type: "reconciliation" as const, action: "RECONCILE M-PESA OTHER", saleId: "sale-2", cashierName: "Brian", authorizedBy: "Owner", createdAt: "2026-08-26T09:00:00Z" }];
+    expect(filterReconciliationHistory(entries, sales, "Amina", "2026-08-27", "2026-08-27")).toHaveLength(1);
+    expect(filterReconciliationHistory(entries, sales, "All", "", "", "ABC123")[0].id).toBe("audit-1");
+    expect(buildReconciliationExportRows(entries, sales)[0]).toMatchObject({ receiptNumber: "ABC123", saleCashier: "Amina", authorizedBy: "Owner", amount: 500, status: "reconciled" });
+  });
+
+  it("parses and safely matches offline M-Pesa statement rows", () => {
+    const sales = [{ id: "sale-1", shiftId: "shift-1", cashierName: "Amina", createdAt: "2026-08-27T08:00:00Z", items: [], subtotal: 500, discount: 0, refund: 0, total: 500, amountGiven: 500, change: 0, paymentMethod: "mpesa_manual" as const, mpesaReceiptNumber: "ABC123", mpesaPhone: "0712345678", reconciliationStatus: "unreconciled" as const }];
+    const parsed = parseMpesaStatementCsv("Receipt,Amount,Phone\nabc123, KSH 500.00, +254712345678\nmissing,not-a-number,0712345678");
+    expect(parsed.rows).toHaveLength(1);
+    expect(parsed.invalidRows).toEqual([3]);
+    const result = matchMpesaStatementRows(parsed.rows, sales);
+    expect(result.matches).toHaveLength(1);
+    expect(result.matches[0].sale.id).toBe("sale-1");
+    expect(result.unmatched).toHaveLength(0);
+    const wrongPhone = matchMpesaStatementRows([{ rowNumber: 2, confirmationCode: "ABC123", amount: 500, phone: "0799999999" }], sales);
+    expect(wrongPhone.matches).toHaveLength(0);
+    expect(wrongPhone.unmatched).toHaveLength(1);
   });
 
   it("accepts only compatible backup envelopes", () => {

@@ -287,3 +287,8 @@
 - [x] Require edit-PIN or owner authorization before individual or bulk M-Pesa reconciliation
 - [x] Add Reports multi-select and bulk reconciliation for unreconciled M-Pesa payments
 - [x] Add deterministic tests for M-Pesa reconciliation authorization and local reconciliation rules
+- [x] Add date-range and cashier filters to reconciliation history
+- [x] Add offline CSV statement import with safe M-Pesa matching and reconciliation
+- [x] Add reconciliation history CSV and PDF export actions
+- [x] Update support branding to Dev by JM Majiwa, streetpandacyber@gmail.com, and WhatsApp 0745198099
+- [x] Add deterministic tests for statement matching, reconciliation filters, and export rows
