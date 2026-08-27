@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, calculateDashboardMetrics, calculateReceiptTotals, calculateSale, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup } from "../lib/domain";
+import { balanceStock, calculateDashboardMetrics, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 
 const product: Product = { ...initialState.products[0], overallStock: 10, soldStock: 3, lowStockThreshold: 7 };
@@ -52,6 +52,15 @@ describe("offline business rules", () => {
   it("accepts app, edit, or cashier PINs for protected actions", () => {
     expect(canAuthorizeAction("2468", "1357", "2468")).toBe(true);
     expect(canAuthorizeAction("9999", "1357", "2468", "1111")).toBe(false);
+  });
+
+  it("summarizes a cashier shift without counting voided transactions", () => {
+    const shift = { id: "shift-1", cashierName: "Amina", shiftName: "Morning", startedAt: "2026-08-20T08:00:00Z" };
+    const sales = [
+      { id: "s1", shiftId: "shift-1", cashierName: "Amina", createdAt: "2026-08-20T09:00:00Z", items: [{ productId: "bread", name: "Bread", quantity: 2, quantityType: "unit" as const, unitPrice: 60, lineTotal: 120 }], subtotal: 120, discount: 0, refund: 10, total: 120, amountGiven: 200, change: 80 },
+      { id: "s2", shiftId: "shift-1", cashierName: "Amina", createdAt: "2026-08-20T10:00:00Z", items: [{ productId: "milk", name: "Milk", quantity: 1, quantityType: "liter" as const, unitPrice: 80, lineTotal: 80 }], subtotal: 80, discount: 0, refund: 0, total: 80, amountGiven: 80, change: 0, status: "voided" as const },
+    ];
+    expect(calculateShiftSummary(shift, sales, "2026-08-20T11:30:00Z")).toMatchObject({ shiftName: "Morning", transactions: 1, itemsSold: 2, grossSales: 120, refunds: 10, netSales: 110, cashHandled: 200, voidedTransactions: 1, durationMinutes: 210 });
   });
 
   it("enforces the sensitive-action authorization matrix", () => {

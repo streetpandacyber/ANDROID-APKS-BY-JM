@@ -81,7 +81,7 @@
 - [x] Add custom folders, archive, trash with recovery metadata, and local note locking
 - [x] Add note word/character counts, created/edited timestamps, and quick-note floating action
 - [x] Expand POS internal tabs to Dashboard, Cashier, Products, Sales, Stock, and Reports
-- [ ] Add cashier shift name, shift label, lined-paper start form, recent items, end-shift confirmation, and shift summary
+- [x] Add cashier shift name, shift label, lined-paper start form, recent items, end-shift confirmation, and shift summary
 - [ ] Add product cost/barcode/image/notes fields plus list sorting and stock filters
 - [x] Add POS cart internal calculator with payment states, quick cash, hold sale, print receipt, and clear confirmation
 - [ ] Add sale detail expansion, date/cashier filters, stock dashboard totals, progress bars, alerts, and movement history
@@ -266,3 +266,5 @@
 - [ ] Critical upgrade: protect any future report mutations with the action-aware authorization policy
 - [x] Next upgrade: complete Receipt Book detail preview, customer/date/amount filtering and sorting, deletion confirmation, and recovery protection
 - [x] Add deterministic Receipt Book safeguard tests and validate native-independent local flows
+- [x] Next upgrade: add cashier shift labels, recent activity, end-shift confirmation, and complete local shift summaries
+- [x] Add deterministic shift summary tests and validate local cashier flows
