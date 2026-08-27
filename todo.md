@@ -306,3 +306,8 @@
 - [x] Add side-by-side preview of detected M-Pesa fields, CSV columns, and sample values
 - [x] Show clear matched, optional, and missing mapping states before reconciliation
 - [x] Add deterministic tests for mapping preview derivation
+- [x] Fix Notebook editor mobile layout and formatting-control readability
+- [x] Add mapping warnings for invalid data types such as text in amount fields
+- [x] Add Reset Mapping control to clear all selected columns
+- [x] Allow editing mapping-preview sample values for format testing
+- [x] Add deterministic tests for mapping validation and reset/sample-preview behavior

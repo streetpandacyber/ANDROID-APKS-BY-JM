@@ -218,6 +218,12 @@ describe("offline business rules", () => {
     expect(preview).toMatchObject([{ label: "Confirmation code", columnName: "Reference", sample: "ABC123", status: "matched", required: true }, { label: "Amount", columnName: "Amount", sample: "500", status: "matched", required: true }, { label: "Phone reference", columnName: "Not used", status: "optional", required: false }, { label: "Statement date/time", columnName: "Not used", status: "optional", required: false }]);
   });
 
+  it("flags invalid mapped samples and recalculates editable preview overrides", () => {
+    const mapping = { confirmationCode: 0, amount: 1, phone: -1, occurredAt: -1 };
+    expect(buildMpesaMappingPreview(["Reference", "Amount"], [["ABC123", "text"]], mapping).find(row => row.field === "amount")?.dataStatus).toBe("invalid");
+    expect(buildMpesaMappingPreview(["Reference", "Amount"], [["ABC123", "500"]], mapping, { amount: "KES 1,250.00" }).find(row => row.field === "amount")?.dataStatus).toBe("valid");
+  });
+
   it("formats known timestamps in East Africa Time", () => {
     expect(formatEAT("2026-08-27T00:00:00.000Z", "dateTime")).toContain("03:00:00");
     expect(formatEAT("2026-08-27T00:00:00.000Z", "date")).toContain("27");

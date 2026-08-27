@@ -109,13 +109,15 @@ export function suggestMpesaStatementMapping(headers: string[]): MpesaStatementC
 export type MpesaStatementMatchResult = { matches: MpesaStatementMatch[]; unmatched: MpesaStatementRow[]; duplicateRows: MpesaStatementRow[] };
 function normalizeCsvHeader(value: string) { return value.replace(/^\uFEFF/, "").trim().toLowerCase().replace(/[^a-z0-9]/g, ""); }
 export function mpesaStatementHeadersSignature(headers: string[]) { return headers.map(normalizeCsvHeader).join("|"); }
-export type MpesaMappingPreviewRow = { field: keyof MpesaStatementColumnMapping; label: string; columnIndex: number; columnName: string; sample: string; required: boolean; status: "matched" | "optional" | "missing" };
-export function buildMpesaMappingPreview(headers: string[], rows: string[][], mapping: MpesaStatementColumnMapping): MpesaMappingPreviewRow[] {
+export type MpesaMappingPreviewRow = { field: keyof MpesaStatementColumnMapping; label: string; columnIndex: number; columnName: string; sample: string; required: boolean; status: "matched" | "optional" | "missing"; dataStatus: "valid" | "invalid" | "empty" };
+export function buildMpesaMappingPreview(headers: string[], rows: string[][], mapping: MpesaStatementColumnMapping, sampleOverrides: Partial<Record<keyof MpesaStatementColumnMapping, string>> = {}): MpesaMappingPreviewRow[] {
   const fields: [keyof MpesaStatementColumnMapping, string, boolean][] = [["confirmationCode", "Confirmation code", true], ["amount", "Amount", true], ["phone", "Phone reference", false], ["occurredAt", "Statement date/time", false]];
   return fields.map(([field, label, required]) => {
     const columnIndex = mapping[field];
     const valid = columnIndex >= 0 && columnIndex < headers.length;
-    return { field, label, columnIndex, columnName: valid ? headers[columnIndex] : "Not used", sample: valid ? (rows[0]?.[columnIndex] || "No sample") : "—", required, status: valid ? "matched" : required ? "missing" : "optional" };
+    const sample = valid ? (sampleOverrides[field] ?? rows[0]?.[columnIndex] ?? "") : (sampleOverrides[field] ?? "");
+    const dataStatus = !valid || !sample.trim() ? "empty" : field === "confirmationCode" ? "valid" : field === "amount" ? (parseStatementAmount(sample) !== undefined && parseStatementAmount(sample)! > 0 ? "valid" : "invalid") : field === "phone" ? (normalizePhone(sample).length >= 9 ? "valid" : "invalid") : "valid";
+    return { field, label, columnIndex, columnName: valid ? headers[columnIndex] : "Not used", sample: valid ? sample : "—", required, status: valid ? "matched" : required ? "missing" : "optional", dataStatus };
   });
 }
 
