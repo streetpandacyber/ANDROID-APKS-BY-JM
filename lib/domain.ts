@@ -2,7 +2,7 @@ import type { AppState, CartLine, Product, ReceiptEntry, Sale, Shift, StockAdjus
 
 export type StockFilter = "all" | "low" | "inStock";
 export type DashboardMetrics = { netSales: number; itemsSold: number; transactions: number; lowStockCount: number };
-export type SensitiveAction = "sale-edit" | "sale-delete" | "stock-adjust" | "report-change" | "refund" | "void";
+export type SensitiveAction = "sale-edit" | "sale-delete" | "stock-adjust" | "report-change" | "mpesa-reconcile" | "refund" | "void";
 
 type AuthorizationPolicyInput = {
   action: SensitiveAction;

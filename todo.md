@@ -283,3 +283,7 @@
 - [x] Add an unreconciled M-Pesa badge or indicator to the POS dashboard
 - [x] Add a dedicated unreconciled M-Pesa report and filter
 - [x] Add deterministic tests for unreconciled M-Pesa counts, filters, and report totals
+- [x] Add dedicated local M-Pesa reconciliation history with reconciler and timestamp details
+- [x] Require edit-PIN or owner authorization before individual or bulk M-Pesa reconciliation
+- [x] Add Reports multi-select and bulk reconciliation for unreconciled M-Pesa payments
+- [x] Add deterministic tests for M-Pesa reconciliation authorization and local reconciliation rules

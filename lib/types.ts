@@ -23,7 +23,7 @@ export type CartLine = { productId: string; quantity: number; unitPrice: number 
 
 export type Cashier = { id: string; name: string; pin?: string; role?: "owner" | "cashier"; editPin?: string };
 
-export type AuditEntry = { id: string; type: "stock" | "refund" | "void" | "cashier"; action: string; cashierName?: string; productId?: string; saleId?: string; quantity?: number; reason?: string; authorizedBy?: string; createdAt: string };
+export type AuditEntry = { id: string; type: "stock" | "refund" | "void" | "cashier" | "reconciliation"; action: string; cashierName?: string; productId?: string; saleId?: string; quantity?: number; reason?: string; authorizedBy?: string; createdAt: string };
 
 export type Shift = { id: string; cashierName: string; shiftName?: string; startedAt: string; endedAt?: string };
 

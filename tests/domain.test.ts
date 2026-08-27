@@ -74,6 +74,9 @@ describe("offline business rules", () => {
     expect(canAuthorizeSensitiveAction({ ...base, action: "sale-delete", inputPin: "2468" })).toBe(false);
     expect(canAuthorizeSensitiveAction({ ...base, action: "sale-delete", inputPin: "1357" })).toBe(true);
     expect(canAuthorizeSensitiveAction({ ...base, action: "sale-edit", inputPin: "2468", editPinEnabled: false })).toBe(true);
+    expect(canAuthorizeSensitiveAction({ ...base, action: "mpesa-reconcile", inputPin: "2468" })).toBe(true);
+    expect(canAuthorizeSensitiveAction({ ...base, action: "mpesa-reconcile", inputPin: "1357" })).toBe(true);
+    expect(canAuthorizeSensitiveAction({ ...base, action: "mpesa-reconcile", inputPin: "9999" })).toBe(false);
   });
 
   it("matches products by barcode or SKU for offline scanning", () => {
