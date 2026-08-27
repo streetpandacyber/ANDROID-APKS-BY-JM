@@ -1,4 +1,4 @@
-import type { AppState, CartLine, Product, Sale, StockAdjustment } from "./types";
+import type { AppState, CartLine, Product, ReceiptEntry, Sale, StockAdjustment } from "./types";
 
 export type StockFilter = "all" | "low" | "inStock";
 export type DashboardMetrics = { netSales: number; itemsSold: number; transactions: number; lowStockCount: number };
@@ -53,6 +53,8 @@ export function canAuthorizeSensitiveAction(input: AuthorizationPolicyInput) {
   if (!input.editPinEnabled) return true;
   return ownerAuthorized || [input.editPin, input.cashierEditPin].some(pin => Boolean(pin) && pin === input.inputPin);
 }
+
+export function filterReceipts(receipts: ReceiptEntry[], search = "", date = "", amountFilter: "all" | "under1000" | "over1000" = "all", sort: "newest" | "oldest" | "amountHigh" | "amountLow" = "newest", dateKey: (value: string) => string = value => value.slice(0, 10)) { const query = search.trim().toLowerCase(); return receipts.filter(receipt => { const haystack = `${receipt.customerName} ${receipt.receiptNumber} ${receipt.title || ""} ${receipt.lines.map(line => line.description).join(" ")}`.toLowerCase(); const amount = receipt.thumbnail?.total ?? receipt.total; const amountMatch = amountFilter === "all" || (amountFilter === "under1000" ? amount < 1000 : amount >= 1000); return haystack.includes(query) && (!date || dateKey(receipt.date) === date) && amountMatch; }).sort((a, b) => sort === "oldest" ? a.date.localeCompare(b.date) : sort === "amountHigh" ? (b.thumbnail?.total ?? b.total) - (a.thumbnail?.total ?? a.total) : sort === "amountLow" ? (a.thumbnail?.total ?? a.total) - (b.thumbnail?.total ?? b.total) : b.date.localeCompare(a.date)); }
 
 export function findProductByBarcode(products: Product[], code: string) { const normalized = code.trim(); if (!normalized) return undefined; return products.find(product => product.barcode?.trim() === normalized || product.sku.trim() === normalized); }
 

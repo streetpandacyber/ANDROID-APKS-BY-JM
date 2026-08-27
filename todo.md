@@ -171,8 +171,8 @@
 
 - [x] Improve Receipt Book history thumbnail readability with clearer receipt hierarchy, spacing, and fallback details
 
-- [ ] Add larger tappable Receipt Book detail preview modal from history thumbnails
-- [ ] Add local Receipt Book sorting and filtering by customer, date, and amount
+- [x] Add larger tappable Receipt Book detail preview modal from history thumbnails
+- [x] Add local Receipt Book sorting and filtering by customer, date, and amount
 - [x] Add dedicated POS calculator sub-tab with Send to Cart action
 
 - [x] Fix compact movement-date filter label clipping and adjacent action overlap
@@ -238,7 +238,7 @@
 - [x] Add richer report presets and local report exports
 - [x] Prepare signed APK build configuration for physical-device testing
 - [x] Add report presets and explicit date-boundary handling
-- [ ] Add receipt deletion safeguards and native-flow validation
+- [x] Add receipt deletion safeguards and native-flow validation
 - [x] Add accessibility labels, roles, focus states, and touch-target polish
 - [ ] Split the monolithic screen into maintainable module components
 - [x] Run full validation and save the upgraded project checkpoint
@@ -264,3 +264,5 @@
 
 - [x] Critical upgrade: extend sensitive-action authorization coverage for stock adjustments and sale deletion, with action-aware policy tests
 - [ ] Critical upgrade: protect any future report mutations with the action-aware authorization policy
+- [x] Next upgrade: complete Receipt Book detail preview, customer/date/amount filtering and sorting, deletion confirmation, and recovery protection
+- [x] Add deterministic Receipt Book safeguard tests and validate native-independent local flows

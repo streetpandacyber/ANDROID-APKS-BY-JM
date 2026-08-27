@@ -104,6 +104,7 @@ export type ReceiptEntry = {
   source: "manual" | "camera";
   images: ReceiptImage[];
   thumbnail?: ReceiptThumbnail;
+  deletedAt?: string;
 };
 
 export type AppSettings = {
@@ -145,6 +146,7 @@ export type AppState = {
   sales: Sale[];
   notebooks: NotebookEntry[];
   receipts: ReceiptEntry[];
+  deletedReceipts: ReceiptEntry[];
   calculatorHistory: string[];
   auditLog: AuditEntry[];
   feedback: FeedbackEntry[];
@@ -159,7 +161,7 @@ export const initialState: AppState = {
     { id: "rice", name: "Premium Rice", sku: "RIC-003", category: "Groceries", price: 1450, quantityType: "kg", overallStock: 18, soldStock: 0, taxRate: 0, lowStockThreshold: 4 },
     { id: "soap", name: "Laundry Soap", sku: "SOP-004", category: "Household", price: 350, quantityType: "unit", overallStock: 5, soldStock: 0, taxRate: 0, lowStockThreshold: 6 },
   ],
-  cashiers: [],   shifts: [], stockAdjustments: [], sales: [], notebooks: [], receipts: [], calculatorHistory: [], auditLog: [], feedback: [],
+  cashiers: [],   shifts: [], stockAdjustments: [], sales: [], notebooks: [], receipts: [], deletedReceipts: [], calculatorHistory: [], auditLog: [], feedback: [],
 };
 
 export function freshId(prefix: string) { return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`; }

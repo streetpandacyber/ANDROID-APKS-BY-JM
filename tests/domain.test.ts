@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, calculateDashboardMetrics, calculateReceiptTotals, calculateSale, canAuthorizeAction, canAuthorizeSensitiveAction, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup } from "../lib/domain";
+import { balanceStock, calculateDashboardMetrics, calculateReceiptTotals, calculateSale, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 
 const product: Product = { ...initialState.products[0], overallStock: 10, soldStock: 3, lowStockThreshold: 7 };
@@ -71,6 +71,18 @@ describe("offline business rules", () => {
     expect(findProductByBarcode([coded], "6161234567890")?.id).toBe(coded.id);
     expect(findProductByBarcode([coded], "BRD-001")?.id).toBe(coded.id);
     expect(findProductByBarcode([coded], "unknown")).toBeUndefined();
+  });
+
+  it("filters and sorts receipt history deterministically", () => {
+    const receipts = [
+      { id: "r1", receiptNumber: "R-0001", customerName: "Amina", merchantName: "Shop", date: "2026-08-20T10:00:00Z", lines: [{ description: "Bread", quantity: 1, unitPrice: 60, amount: 60 }], total: 60, source: "manual" as const, images: [] },
+      { id: "r2", receiptNumber: "R-0002", customerName: "Brian", merchantName: "Shop", date: "2026-08-22T10:00:00Z", lines: [{ description: "Rice", quantity: 1, unitPrice: 1450, amount: 1450 }], total: 1450, source: "manual" as const, images: [] },
+    ];
+    expect(filterReceipts(receipts, "amina")[0].id).toBe("r1");
+    expect(filterReceipts(receipts, "", "2026-08-22")[0].id).toBe("r2");
+    expect(filterReceipts(receipts, "", "", "over1000")[0].id).toBe("r2");
+    expect(filterReceipts(receipts, "", "", "all", "oldest").map(receipt => receipt.id)).toEqual(["r1", "r2"]);
+    expect(filterReceipts(receipts, "", "", "all", "amountHigh")[0].id).toBe("r2");
   });
 
   it("accepts only compatible backup envelopes", () => {
