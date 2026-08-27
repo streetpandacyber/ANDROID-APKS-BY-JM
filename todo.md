@@ -315,3 +315,7 @@
 - [x] Add configurable validation rules for local M-Pesa statement formats
 - [x] Add mapping-preview action to restore original CSV sample values
 - [x] Add deterministic tests for Markdown rendering, validation rules, and sample restoration
+- [x] Remove the live Notebook preview panel
+- [x] Make BOLD, ITALIC, H1, H2, H3, and LIST controls insert their intended formatting
+- [x] Add tap and hover feedback to Notebook formatting controls
+- [x] Add deterministic tests for Notebook formatting insertion behavior

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping, detectMpesaMappingTemplate, buildMpesaMappingPreview, isWithinDateRange, mpesaStatementHeadersSignature, parseNotebookMarkdown } from "../lib/domain";
+import { balanceStock, buildReportSnapshot, calculateDashboardMetrics, hasDuplicateBarcode, calculateReceiptTotals, calculateSale, calculateShiftSummary, canAuthorizeAction, canAuthorizeSensitiveAction, filterReceipts, filterSales, filterStock, findProductByBarcode, isLowStock, isValidBackup, sortProducts, normalizeSale, hasDuplicateMpesaReceipt, reconcileMpesaSale, filterUnreconciledMpesa, filterReconciliationHistory, buildReconciliationExportRows, parseMpesaStatementCsv, matchMpesaStatementRows, inspectMpesaStatementCsv, suggestMpesaStatementMapping, detectMpesaMappingTemplate, buildMpesaMappingPreview, isWithinDateRange, mpesaStatementHeadersSignature, parseNotebookMarkdown, formatNotebookInsertion } from "../lib/domain";
 import { initialState, type Product } from "../lib/types";
 import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackup } from "../lib/backup-crypto";
 import { formatEAT } from "../lib/time";
@@ -232,6 +232,15 @@ describe("offline business rules", () => {
     expect(buildMpesaMappingPreview(["Ref", "Amount", "Mobile", "When"], [["ABC123", "500", "0712345678", "27 Aug 2026 09:15"]], mapping, { amount: "text" }, rules).find(row => row.field === "amount")?.dataStatus).toBe("invalid");
     expect(buildMpesaMappingPreview(["Ref", "Amount"], [["ABC123", "500"]], { confirmationCode: 0, amount: 1, phone: -1, occurredAt: -1 }, { amount: "1,250" }).find(row => row.field === "amount")?.sample).toBe("1,250");
     expect(buildMpesaMappingPreview(["Ref", "Amount"], [["ABC123", "500"]], { confirmationCode: 0, amount: 1, phone: -1, occurredAt: -1 }).find(row => row.field === "amount")?.sample).toBe("500");
+  });
+
+  it("inserts the requested Notebook formatting at the cursor or selection", () => {
+    expect(formatNotebookInsertion("hello", "B")).toMatchObject({ text: "hello **bold**", selection: { start: 14, end: 14 } });
+    expect(formatNotebookInsertion("hello world", "I", { start: 6, end: 11 }).text).toBe("hello *italic*");
+    expect(formatNotebookInsertion("", "H1").text).toBe("# ");
+    expect(formatNotebookInsertion("", "H2").text).toBe("## ");
+    expect(formatNotebookInsertion("", "H3").text).toBe("### ");
+    expect(formatNotebookInsertion("", "• List").text).toBe("• ");
   });
 
   it("parses Notebook Markdown-style blocks deterministically", () => {
