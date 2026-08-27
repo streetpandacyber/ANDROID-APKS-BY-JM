@@ -319,3 +319,7 @@
 - [x] Make BOLD, ITALIC, H1, H2, H3, and LIST controls insert their intended formatting
 - [x] Add tap and hover feedback to Notebook formatting controls
 - [x] Add deterministic tests for Notebook formatting insertion behavior
+- [x] Add selection-aware formatting toggles that remove existing markup on repeat tap
+- [x] Add web keyboard shortcuts for common Notebook formatting actions
+- [x] Add compact Markdown formatting help sheet or tooltip guide
+- [x] Add deterministic tests for formatting toggle behavior
